@@ -12,7 +12,7 @@ Papa.parse(bankrollUrl, {
   complete: function(results) {
     const users = results.data;
     const user = users.find(u => u.Name === currentUser);
-    currentBankroll = user ? parseInt(user.Bankroll) : 0;
+currentBankroll = user ? parseInt(user.Bankroll.replace(/[^0-9]/g, "")) : 0;
     renderSlip(); // Ensure bankroll shows
   }
 });
