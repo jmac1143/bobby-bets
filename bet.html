@@ -1,15 +1,87 @@
+
+<!-- bet.html: Full 6-option sportsbook layout wired to Week 1 Google Sheet -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Betting Interface</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bobby Bets Interface</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
-  <header class="banner"><h1>🏈 Bobby Bets Interface</h1></header>
-  <main id="betting-section">
-    <p>Betting interface restored. Actual games and odds coming in next update.</p>
-  </main>
+  <div class="header">
+    <span class="icon">🏈</span>
+    <h1>Bobby Bets Interface</h1>
+  </div>
+  <div class="subhead">
+    <p>Pick your winners. Set your wager. Lock it in.</p>
+  </div>
+
+  <!-- Matchups Section -->
+  <section id="matchups">
+    <h2>Week 1 Matchups</h2>
+    <div id="games-container"></div>
+  </section>
+
+  <!-- Bet Slip Section -->
+  <section id="bet-slip">
+    <h2>Your Bet Slip</h2>
+    <div id="selected-bets">
+      <!-- Selected bets will appear here -->
+    </div>
+    <label for="wager">Wager Amount ($):</label>
+    <input type="number" id="wager" min="1" max="1000" value="50" />
+    <button id="submit-bet">Place Bet</button>
+  </section>
+
+  <script>
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=0&single=true&output=csv";
+
+    function formatSpread(team, spread) {
+      const value = parseFloat(spread);
+      if (isNaN(value)) return `${team} (N/A)`;
+      const formatted = value > 0 ? `+${value}` : value;
+      return `${team} ${formatted}`;
+    }
+
+    function loadGames() {
+      Papa.parse(CSV_URL, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const data = results.data;
+          const container = document.getElementById("games-container");
+          container.innerHTML = "";
+
+          data.forEach((game, index) => {
+            if (!game["Team A"] || !game["Team B"]) return;
+
+            const spread = parseFloat(game["Spread"]);
+            const teamASpread = formatSpread(game["Team A"], -spread);
+            const teamBSpread = formatSpread(game["Team B"], spread);
+
+            const div = document.createElement("div");
+            div.className = "game-card";
+            div.innerHTML = `
+              <h3>Game ${index + 1}: ${game["Team A"]} vs ${game["Team B"]}</h3>
+              <div class="bet-options">
+                <button class="bet-btn">${teamASpread}</button>
+                <button class="bet-btn">${teamBSpread}</button>
+                <button class="bet-btn">${game["Team A"]} ML</button>
+                <button class="bet-btn">${game["Team B"]} ML</button>
+                <button class="bet-btn">OVER</button>
+                <button class="bet-btn">UNDER</button>
+              </div>
+              <p class="bobbys-pick">🎤 Bobby’s Pick: <strong>${game["Bobby’s Pick"] || "TBD"}</strong></p>
+            `;
+            container.appendChild(div);
+          });
+        }
+      });
+    }
+
+    window.onload = loadGames;
+  </script>
 </body>
 </html>
