@@ -1,77 +1,79 @@
-const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKkrO3IGiK1iPnqcP1S56GhopZzzkYqD9TS-W7Avn8I9WIt6vOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=1476766586&single=true&output=csv";
-const scriptUrl = "https://script.google.com/macros/s/AKfycbxG9FNe2oKdqxfdcqBXFWGY8hF83ATkT-hKLiowaJ1yp4GHYy5z5cJf0t3XlSG8exS-/exec";
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=0&single=true&output=csv";
+const bankrollURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=1385414165&single=true&output=csv";
 
-let loggedInUser = localStorage.getItem("loggedInUser");
-let currentBankroll = 0;
-let betSlip = [];
+const betSlip = [];
+let user = localStorage.getItem("loggedInUser") || "Unknown";
+let bankroll = 0;
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("welcome").textContent = `Welcome, ${loggedInUser}`;
-  fetchBankroll();
-  fetchMatchups();
-  updateBetSlip();
-});
-
-function fetchBankroll() {
-  fetch(sheetUrl)
-    .then(response => response.text())
-    .then(data => {
-      const rows = data.split("\n").map(row => row.split(","));
-      const headers = rows[0];
-      const bettorIndex = headers.indexOf("Bettor");
-      const bankrollIndex = headers.indexOf("Bankroll");
-
-      for (let i = 1; i < rows.length; i++) {
-        const name = rows[i][bettorIndex]?.trim();
-        if (name === loggedInUser) {
-          let value = rows[i][bankrollIndex].replace(/[$,]/g, "").trim();
-          currentBankroll = parseFloat(value) || 0;
-          break;
-        }
-      }
-
-      document.getElementById("bankroll-display").textContent = `Bankroll: $${currentBankroll.toFixed(2)}`;
-    });
-}
-
-function fetchMatchups() {
-  Papa.parse("https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKk...YOUR_MATCHUP_CSV_LINK.../pub?gid=0&single=true&output=csv", {
-    download: true,
-    header: true,
-    complete: function (results) {
-      displayMatchups(results.data);
+// Fetch bankroll
+fetch(bankrollURL)
+  .then(r => r.text())
+  .then(text => {
+    const rows = text.trim().split("\n").map(row => row.split(","));
+    const headers = rows.shift();
+    const userIndex = rows.findIndex(r => r[0].trim().toLowerCase() === user.toLowerCase());
+    if (userIndex !== -1) {
+      const raw = rows[userIndex][1].replace(/\$/g, "").trim();
+      bankroll = parseFloat(raw);
+      document.getElementById("welcome").innerText = `Welcome, ${user}`;
+      updateBetSlip();
     }
   });
-}
 
-function displayMatchups(games) {
-  const container = document.getElementById("matchups");
-  container.innerHTML = "";
+// Fetch matchups
+fetch(sheetURL)
+  .then(r => r.text())
+  .then(text => {
+    const rows = text.trim().split("\n").slice(1).map(row => row.split(","));
+    const container = document.getElementById("matchups");
+    rows.forEach((row, i) => {
+      const [teamA, teamB, projA, projB, , , , , , , spread, ou] = row;
+      const numProjA = parseFloat(projA);
+      const numProjB = parseFloat(projB);
+      const spreadVal = parseFloat(spread);
 
-  games.forEach(game => {
-    const teamA = game["Team A"];
-    const teamB = game["Team B"];
-    const spread = parseFloat(game["Spread"]) || 0;
+      const favored = numProjA > numProjB ? teamA : teamB;
+      const dog = favored === teamA ? teamB : teamA;
+      const spreadA = favored === teamA ? `-${spreadVal}` : `+${spreadVal}`;
+      const spreadB = favored === teamB ? `-${spreadVal}` : `+${spreadVal}`;
 
-    const spreadA = spread > 0 ? `-${spread}` : `+${Math.abs(spread)}`;
-    const spreadB = spread > 0 ? `+${spread}` : `-${Math.abs(spread)}`;
+      const div = document.createElement("div");
+      div.classList.add("game");
 
-    container.innerHTML += `
-      <div class="game">
-        <button onclick="addToSlip('${teamA}', 'Spread', ${spreadA})">${teamA} ${spreadA}</button>
-        <button onclick="addToSlip('${teamB}', 'Spread', ${spreadB})">${teamB} ${spreadB}</button>
+      div.innerHTML = `
+        <h3>Game ${i + 1}: ${teamA} vs ${teamB}</h3>
+        <button onclick="addToSlip('${teamA}', 'Spread', '${spreadA}')">${teamA} ${spreadA}</button>
+        <button onclick="addToSlip('${teamB}', 'Spread', '${spreadB}')">${teamB} ${spreadB}</button>
         <button onclick="addToSlip('${teamA}', 'ML', 'ML')">${teamA} ML</button>
         <button onclick="addToSlip('${teamB}', 'ML', 'ML')">${teamB} ML</button>
-        <button onclick="addToSlip('OVER', 'Total', ${game["Over/Under"]})">OVER ${game["Over/Under"]}</button>
-        <button onclick="addToSlip('UNDER', 'Total', ${game["Over/Under"]})">UNDER ${game["Over/Under"]}</button>
-      </div>
-    `;
+        <button onclick="addToSlip('OVER', 'O/U', '${ou}')">OVER ${ou}</button>
+        <button onclick="addToSlip('UNDER', 'O/U', '${ou}')">UNDER ${ou}</button>
+      `;
+
+      container.appendChild(div);
+    });
   });
-}
 
 function addToSlip(team, type, value) {
   betSlip.push({ team, type, value });
   updateBetSlip();
+}
+
+function updateBetSlip() {
+  const slip = document.getElementById("bet-slip");
+  slip.innerHTML = `
+    <div>
+      <p><strong>Bankroll:</strong> $${bankroll.toFixed(2)}</p>
+      <label>Wager: $<input type="number" id="wager" value="50" min="1" /></label>
+      <button onclick="resetSlip()">Reset Slip</button>
+      <button onclick="submitSlip()">Submit Bet</button>
+    </div>
+  `;
+  betSlip.forEach((bet, index) => {
+    const div = document.createElement("div");
+    div.innerHTML = `${bet.team}: ${bet.type} ${bet.value} <button onclick="removeFromSlip(${index})">x</button>`;
+    slip.appendChild(div);
+  });
 }
 
 function removeFromSlip(index) {
@@ -80,50 +82,41 @@ function removeFromSlip(index) {
 }
 
 function resetSlip() {
-  betSlip = [];
+  betSlip.length = 0;
   updateBetSlip();
 }
 
-function updateBetSlip() {
-  const slip = document.getElementById("bet-slip");
-  slip.innerHTML = `
-    <div>Bankroll: <span id="bankroll-display">$${currentBankroll.toFixed(2)}</span></div>
-    <label>Wager: <input id="wager-input" type="number" value="50" min="1" max="${currentBankroll}" /></label>
-    <div id="bet-list">${betSlip.map((b, i) => `
-      <div>${b.team}: ${b.type} ${b.value} 
-        <button onclick="removeFromSlip(${i})">x</button>
-      </div>
-    `).join("")}</div>
-    <button onclick="resetSlip()">Reset Slip</button>
-    <button onclick="submitSlip()">Submit Bet</button>
-  `;
-}
-
 function submitSlip() {
-  const wager = parseFloat(document.getElementById("wager-input").value);
-  if (wager > currentBankroll) {
-    alert("Not enough bankroll!");
+  const wager = parseFloat(document.getElementById("wager").value);
+  if (isNaN(wager) || wager <= 0) {
+    alert("Invalid wager amount.");
+    return;
+  }
+  if (wager > bankroll) {
+    alert("Insufficient bankroll.");
     return;
   }
 
-  fetch(scriptUrl, {
+  const payload = {
+    user,
+    wager,
+    bets: JSON.stringify(betSlip),
+    timestamp: new Date().toISOString(),
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbxG9FNe2oKdqxfdcqBXFWGY8hF83ATkT-hKLiowaJ1yp4GHYy5z5cJf0t3XlSG8exS-/exec", {
     method: "POST",
-    body: JSON.stringify({
-      user: loggedInUser,
-      wager: wager,
-      slip: betSlip
-    }),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  }).then(res => {
-    if (res.ok) {
-      alert("Bet submitted!");
-      currentBankroll -= wager;
+    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" }
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert("Bet submitted successfully!");
+      bankroll -= wager;
       resetSlip();
-      updateBetSlip();
-    } else {
+    })
+    .catch(err => {
+      console.error("Error submitting bet:", err);
       alert("Error submitting bet.");
-    }
-  });
+    });
 }
