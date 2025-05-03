@@ -1,1 +1,37 @@
-<!-- index.html placeholder -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bobby Bets - Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="login-container">
+    <h1>Welcome to Bobby Bets</h1>
+    <div id="login-buttons"></div>
+  </div>
+  <script>
+    const pins = {
+      "Justin": 4732, "Ryan": 8042, "JB": 6204, "Fyola": 7293, "AK": 3471,
+      "Seth": 1579, "Jimmy": 4590, "Evan": 9185, "Jonathan": 5710,
+      "Juice": 8127, "Timmy": 2937, "Kyle": 6935
+    };
+    const loginButtons = document.getElementById("login-buttons");
+    Object.keys(pins).forEach(name => {
+      const btn = document.createElement("button");
+      btn.textContent = name;
+      btn.onclick = () => {
+        const pin = prompt("Enter your PIN");
+        if (parseInt(pin) === pins[name]) {
+          localStorage.setItem("bettor", name);
+          window.location.href = "bet.html";
+        } else {
+          alert("Incorrect PIN.");
+        }
+      };
+      loginButtons.appendChild(btn);
+    });
+  </script>
+</body>
+</html>
