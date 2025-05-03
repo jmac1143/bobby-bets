@@ -1,7 +1,21 @@
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=0&single=true&output=csv";
+const bankrollUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=1071714179&single=true&output=csv";
 
 let betSlipData = [];
 let wagerAmount = 50;
+let currentUser = localStorage.getItem("loggedInUser") || "Unknown";
+let currentBankroll = 0;
+
+Papa.parse(bankrollUrl, {
+  download: true,
+  header: true,
+  complete: function(results) {
+    const users = results.data;
+    const user = users.find(u => u.Name === currentUser);
+    currentBankroll = user ? parseInt(user.Bankroll) : 0;
+    renderSlip(); // Ensure bankroll shows
+  }
+});
 
 Papa.parse(csvUrl, {
   download: true,
@@ -18,7 +32,6 @@ Papa.parse(csvUrl, {
       const moneylineB = parseInt(row["Moneyline B"]);
       const overUnder = row["Over/Under Line"];
 
-      // Determine favorite for spread
       let spreadA, spreadB;
       if (moneylineA < moneylineB) {
         spreadA = `-${spread}`;
@@ -64,9 +77,11 @@ function renderSlip() {
 
   const wagerDiv = document.createElement("div");
   wagerDiv.innerHTML = `
+    <p><strong>Bankroll:</strong> $${currentBankroll}</p>
     <label for="wagerInput">Wager Amount: $</label>
     <input type="number" id="wagerInput" value="${wagerAmount}" min="1" onchange="updateWager(this.value)">
     <button onclick="resetSlip()">Reset Slip</button>
+    <button onclick="submitSlip()">Submit Bet</button>
   `;
   slip.appendChild(wagerDiv);
 }
@@ -83,4 +98,35 @@ function resetSlip() {
 
 function updateWager(value) {
   wagerAmount = parseInt(value) || 50;
+}
+
+function submitSlip() {
+  if (wagerAmount > currentBankroll) {
+    alert("You do not have enough bankroll to place this wager.");
+    return;
+  }
+
+  const payload = {
+    user: currentUser,
+    wager: wagerAmount,
+    picks: JSON.stringify(betSlipData)
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbxG9FNe2oKdqxfdcqBXFWGY8hF83ATkT-hKLiowaJ1yp4GHYy5z5cJf0t3XlSG8exS-/exec", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+    .then(response => response.text())
+    .then(data => {
+      alert("Bet submitted successfully!");
+      currentBankroll -= wagerAmount;
+      resetSlip();
+    })
+    .catch(error => {
+      alert("Error submitting bet.");
+      console.error("Submission error:", error);
+    });
 }
