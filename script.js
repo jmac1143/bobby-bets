@@ -1,42 +1,42 @@
+const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=0&single=true&output=csv";
 
-const bettor = localStorage.getItem("bettor") || "Guest";
-document.getElementById("welcome").textContent = "Welcome, " + bettor;
-
-Papa.parse("https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?output=csv", {
+Papa.parse(csvUrl, {
   download: true,
   header: true,
   complete: function(results) {
-    const matchups = results.data;
+    const data = results.data;
     const container = document.getElementById("matchups");
-    matchups.forEach((row, i) => {
-      const div = document.createElement("div");
-      div.innerHTML = `
-        <h3>${row.Matchup}</h3>
-        <button onclick="addToSlip('${row.TeamA} -${row.Spread}', '${row.Matchup}')">${row.TeamA} -${row.Spread}</button>
-        <button onclick="addToSlip('${row.TeamB} +${row.Spread}', '${row.Matchup}')">${row.TeamB} +${row.Spread}</button>
-        <button onclick="addToSlip('${row.TeamA} ML', '${row.Matchup}')">${row.TeamA} ML</button>
-        <button onclick="addToSlip('${row.TeamB} ML', '${row.Matchup}')">${row.TeamB} ML</button>
-        <button onclick="addToSlip('OVER ${row.OU}', '${row.Matchup}')">OVER ${row.OU}</button>
-        <button onclick="addToSlip('UNDER ${row.OU}', '${row.Matchup}')">UNDER ${row.OU}</button>
+
+    data.forEach((row, index) => {
+      const teamA = row["Team A"];
+      const teamB = row["Team B"];
+      const spreadA = row["Spread A"];
+      const spreadB = row["Spread B"];
+      const moneylineA = row["Moneyline A"];
+      const moneylineB = row["Moneyline B"];
+      const overUnder = row["Over/Under Line"];
+      const overOdds = row["Over Odds"];
+      const underOdds = row["Under Odds"];
+
+      const gameDiv = document.createElement("div");
+      gameDiv.innerHTML = `
+        <h3>Game ${index + 1}: ${teamA} vs ${teamB}</h3>
+        <button onclick="addToSlip('${teamA}', '${spreadA}')">${teamA} ${spreadA}</button>
+        <button onclick="addToSlip('${teamB}', '${spreadB}')">${teamB} ${spreadB}</button>
+        <button onclick="addToSlip('${teamA}', 'ML')">${teamA} ML</button>
+        <button onclick="addToSlip('${teamB}', 'ML')">${teamB} ML</button>
+        <button onclick="addToSlip('OVER', '${overUnder}')">OVER ${overUnder}</button>
+        <button onclick="addToSlip('UNDER', '${overUnder}')">UNDER ${overUnder}</button>
       `;
-      container.appendChild(div);
+      container.appendChild(gameDiv);
     });
   }
 });
 
-let slip = [];
-function addToSlip(bet, matchup) {
-  slip.push({ bet, matchup });
-  renderSlip();
+function addToSlip(team, betType) {
+  const slip = document.getElementById("betSlip");
+  const betDiv = document.createElement("div");
+  betDiv.textContent = `${team}: ${betType}`;
+  slip.appendChild(betDiv);
 }
-function renderSlip() {
-  const el = document.getElementById("bet-slip");
-  el.innerHTML = "<h4>Bet Slip</h4>";
-  slip.forEach((s, i) => {
-    el.innerHTML += `<div>${s.matchup}: ${s.bet} <button onclick="removeSlip(${i})">x</button></div>`;
-  });
-}
-function removeSlip(i) {
-  slip.splice(i, 1);
-  renderSlip();
-}
+
