@@ -1,5 +1,8 @@
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=0&single=true&output=csv";
 
+let betSlipData = [];
+let wagerAmount = 50;
+
 Papa.parse(csvUrl, {
   download: true,
   header: true,
@@ -14,10 +17,8 @@ Papa.parse(csvUrl, {
       const moneylineA = parseInt(row["Moneyline A"]);
       const moneylineB = parseInt(row["Moneyline B"]);
       const overUnder = row["Over/Under Line"];
-      const overOdds = row["Over Odds"];
-      const underOdds = row["Under Odds"];
 
-      // Dynamically determine who is favored based on lower moneyline
+      // Determine favorite for spread
       let spreadA, spreadB;
       if (moneylineA < moneylineB) {
         spreadA = `-${spread}`;
@@ -43,8 +44,43 @@ Papa.parse(csvUrl, {
 });
 
 function addToSlip(team, betType) {
+  betSlipData.push({ team, betType });
+  renderSlip();
+}
+
+function renderSlip() {
   const slip = document.getElementById("betSlip");
-  const betDiv = document.createElement("div");
-  betDiv.textContent = `${team}: ${betType}`;
-  slip.appendChild(betDiv);
+  slip.innerHTML = "<h4>Bet Slip</h4>";
+
+  betSlipData.forEach((bet, index) => {
+    const betDiv = document.createElement("div");
+    betDiv.classList.add("bet-item");
+    betDiv.innerHTML = `
+      ${bet.team}: ${bet.betType}
+      <button onclick="removeBet(${index})">❌</button>
+    `;
+    slip.appendChild(betDiv);
+  });
+
+  const wagerDiv = document.createElement("div");
+  wagerDiv.innerHTML = `
+    <label for="wagerInput">Wager Amount: $</label>
+    <input type="number" id="wagerInput" value="${wagerAmount}" min="1" onchange="updateWager(this.value)">
+    <button onclick="resetSlip()">Reset Slip</button>
+  `;
+  slip.appendChild(wagerDiv);
+}
+
+function removeBet(index) {
+  betSlipData.splice(index, 1);
+  renderSlip();
+}
+
+function resetSlip() {
+  betSlipData = [];
+  renderSlip();
+}
+
+function updateWager(value) {
+  wagerAmount = parseInt(value) || 50;
 }
