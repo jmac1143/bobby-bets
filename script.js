@@ -10,13 +10,22 @@ Papa.parse(csvUrl, {
     data.forEach((row, index) => {
       const teamA = row["Team A"];
       const teamB = row["Team B"];
-      const spreadA = row["Spread A"];
-      const spreadB = row["Spread B"];
-      const moneylineA = row["Moneyline A"];
-      const moneylineB = row["Moneyline B"];
+      const spread = parseFloat(row["Spread"]);
+      const moneylineA = parseInt(row["Moneyline A"]);
+      const moneylineB = parseInt(row["Moneyline B"]);
       const overUnder = row["Over/Under Line"];
       const overOdds = row["Over Odds"];
       const underOdds = row["Under Odds"];
+
+      // Dynamically determine who is favored based on lower moneyline
+      let spreadA, spreadB;
+      if (moneylineA < moneylineB) {
+        spreadA = `-${spread}`;
+        spreadB = `+${spread}`;
+      } else {
+        spreadA = `+${spread}`;
+        spreadB = `-${spread}`;
+      }
 
       const gameDiv = document.createElement("div");
       gameDiv.innerHTML = `
@@ -39,4 +48,3 @@ function addToSlip(team, betType) {
   betDiv.textContent = `${team}: ${betType}`;
   slip.appendChild(betDiv);
 }
-
