@@ -1,6 +1,1 @@
-
-body { font-family: Karla, sans-serif; background: #111; color: white; margin: 0; padding-bottom: 160px; }
-.bet-slip { background-color: #111; color: #fff; padding: 16px; border-top: 2px solid lime;
-  position: fixed; bottom: 0; left: 0; right: 0; font-family: Karla, sans-serif; z-index: 100; }
-.bet-item { display: flex; justify-content: space-between; margin-bottom: 8px; }
-.bet-slip button { margin: 4px; background: lime; color: black; border: none; padding: 6px 12px; cursor: pointer; }
+<!-- style.css placeholder -->
