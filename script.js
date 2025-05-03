@@ -11,7 +11,8 @@ Papa.parse(bankrollUrl, {
   header: true,
   complete: function(results) {
     const users = results.data;
-    const user = users.find(u => u.Name === currentUser);
+   const user = users.find(u => u.Bettor === currentUser);
+
 currentBankroll = user ? parseInt(user.Bankroll.replace(/[^0-9]/g, "")) : 0;
     renderSlip(); // Ensure bankroll shows
   }
