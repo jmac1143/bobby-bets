@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,30 +6,36 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="login-container">
-    <h1>Welcome to Bobby Bets</h1>
-    <div id="login-buttons"></div>
-  </div>
+  <h1>Welcome to Bobby Bets</h1>
+  <div id="login-buttons"></div>
+
   <script>
+    const users = [
+      "Justin", "Ryan", "JB", "Fyola", "AK", "Seth",
+      "Jimmy", "Evan", "Jonathan", "Juice", "Timmy", "Kyle"
+    ];
+
     const pins = {
-      "Justin": 4732, "Ryan": 8042, "JB": 6204, "Fyola": 7293, "AK": 3471,
-      "Seth": 1579, "Jimmy": 4590, "Evan": 9185, "Jonathan": 5710,
-      "Juice": 8127, "Timmy": 2937, "Kyle": 6935
+      "Justin": "4732", "Ryan": "8042", "JB": "6204", "Fyola": "7293",
+      "AK": "3471", "Seth": "1579", "Jimmy": "4590", "Evan": "9185",
+      "Jonathan": "5710", "Juice": "8127", "Timmy": "2937", "Kyle": "6935"
     };
-    const loginButtons = document.getElementById("login-buttons");
-    Object.keys(pins).forEach(name => {
+
+    const container = document.getElementById("login-buttons");
+
+    users.forEach(user => {
       const btn = document.createElement("button");
-      btn.textContent = name;
-      btn.onclick = () => {
-        const pin = prompt("Enter your PIN");
-        if (parseInt(pin) === pins[name]) {
-          localStorage.setItem("bettor", name);
-          window.location.href = "bet.html";
+      btn.textContent = user;
+      btn.addEventListener("click", () => {
+        const enteredPin = prompt(`Enter PIN for ${user}:`);
+        if (enteredPin === pins[user]) {
+          localStorage.setItem("loggedInUser", user); // ✅ Store username
+          window.location.href = "bet.html";          // Redirect to bet page
         } else {
           alert("Incorrect PIN.");
         }
-      };
-      loginButtons.appendChild(btn);
+      });
+      container.appendChild(btn);
     });
   </script>
 </body>
