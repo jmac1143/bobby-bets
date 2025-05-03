@@ -3,24 +3,60 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Bobby Bets - Bet Page</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <title>Bobby Bets – Bet Page</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1rem;
+      background: #f9f9f9;
+    }
+    h1, h2 {
+      margin-bottom: 0.5rem;
+    }
+    #matchups .matchup {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #fff;
+    }
+    .team {
+      font-weight: bold;
+    }
+    .vs {
+      margin: 0.5rem 0;
+      text-align: center;
+    }
+    button {
+      margin: 0.25rem;
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+    #bet-slip {
+      margin-top: 2rem;
+      border-top: 2px solid #333;
+      padding-top: 1rem;
+    }
+    .wager input {
+      width: 60px;
+      margin-left: 0.5rem;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Bobby Bets Sportsbook</h1>
-    <h2 id="welcome">Welcome, ...</h2>
 
-    <div id="matchups" class="matchups">
-      <!-- Matchup buttons will appear here -->
-    </div>
+  <h1>Welcome, <span id="user-name"></span></h1>
+  <h2>Bankroll: <span id="bankroll">$0</span></h2>
 
-    <div id="betSlip" class="betslip">
-      <!-- Bet slip contents will appear here -->
-    </div>
+  <div id="matchups"></div>
+
+  <div id="bet-slip">
+    <!-- Bet slip will be dynamically injected here -->
   </div>
 
+  <!-- PapaParse -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <!-- Main logic -->
   <script src="script.js"></script>
+
 </body>
 </html>
