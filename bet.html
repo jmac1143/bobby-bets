@@ -12,19 +12,29 @@
   <p><strong>Bankroll:</strong> $<span id="bankroll">0.00</span></p>
   <hr />
 
+  <!-- Matchups will be dynamically loaded here -->
   <div id="matchups"></div>
 
+  <!-- Bet Slip -->
   <div id="bet-slip" class="bet-slip">
     <h3>Bet Slip</h3>
     <ul id="slip-items"></ul>
+
+    <!-- Dynamic parlay/single display -->
     <p id="parlay-line" style="margin-top: 5px; font-style: italic;"></p>
+
+    <!-- Wager input -->
     <p>Wager: $<input id="wager-input" type="number" value="50" min="1" /></p>
+
+    <!-- Buttons -->
     <button id="reset-slip">Reset Slip</button>
     <button id="submit-bet">Submit Bet</button>
+
+    <!-- Payout display -->
     <p id="payout-line" style="margin-top: 10px;"></p>
   </div>
 
-  <!-- PapaParse + Script -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="script.js"></script>
 </body>
