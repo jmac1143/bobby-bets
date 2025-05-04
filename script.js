@@ -8,16 +8,6 @@ let wagerAmount = 50;
 
 document.getElementById("user-name").textContent = currentUser || "Unknown";
 
-function toDecimal(odds) {
-  return odds > 0 ? (odds / 100 + 1) : (100 / Math.abs(odds) + 1);
-}
-
-function calculateParlayPayout(wager, bets) {
-  if (!bets.length) return 0;
-  const combinedDecimal = bets.reduce((acc, bet) => acc * toDecimal(bet.odds), 1);
-  return +(wager * combinedDecimal).toFixed(2);
-}
-
 Papa.parse(MATCHUP_CSV, {
   download: true,
   header: true,
@@ -89,9 +79,6 @@ function removeFromSlip(index) {
 
 function renderSlip() {
   const list = document.getElementById("slip-items");
-  const parlayLine = document.getElementById("parlay-line");
-  const payoutLine = document.getElementById("payout-line");
-
   list.innerHTML = "";
 
   betSlip.forEach((bet, index) => {
@@ -103,12 +90,38 @@ function renderSlip() {
     list.appendChild(item);
   });
 
-  parlayLine.textContent = betSlip.length === 1
-    ? "Single Bet"
-    : `${betSlip.length}-Leg Parlay`;
+  const parlayLine = document.getElementById("parlay-line");
+  const payoutLine = document.getElementById("payout-line");
 
-  const payout = calculateParlayPayout(wagerAmount, betSlip);
-  payoutLine.textContent = `Wager: $${wagerAmount.toFixed(2)} | Potential Return: $${payout.toFixed(2)}`;
+  if (betSlip.length === 0) {
+    parlayLine.textContent = "";
+    payoutLine.textContent = "";
+    return;
+  }
+
+  // === Combined Decimal Odds
+  let decimalOdds = 1;
+  betSlip.forEach(bet => {
+    const odds = parseInt(bet.odds);
+    const decimal = odds > 0 ? (odds / 100 + 1) : (100 / Math.abs(odds) + 1);
+    decimalOdds *= decimal;
+  });
+
+  // === Back to American Format (for display only)
+  const parlayAmerican = decimalOdds >= 2
+    ? `+${Math.round((decimalOdds - 1) * 100)}`
+    : `-${Math.round(100 / (decimalOdds - 1))}`;
+
+  // === Payout
+  const payout = wagerAmount * decimalOdds;
+
+  if (betSlip.length === 1) {
+    parlayLine.innerHTML = `<em>Single Bet</em><br>Odds: ${betSlip[0].odds} (${decimalOdds.toFixed(2)})`;
+  } else {
+    parlayLine.innerHTML = `<em>${betSlip.length}-Leg Parlay</em><br>Combined Odds: ${parlayAmerican} (${decimalOdds.toFixed(2)})`;
+  }
+
+  payoutLine.textContent = `Total Wager: $${wagerAmount.toFixed(2)} | Potential Return: $${payout.toFixed(2)}`;
 }
 
 document.getElementById("wager-input").addEventListener("change", (e) => {
