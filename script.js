@@ -161,17 +161,27 @@ document.getElementById("submit-bet").addEventListener("click", () => {
 
   const parlayId = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14) + "_" + currentUser;
 
-  fetch(SCRIPT_ENDPOINT, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      user: currentUser,
-      bets: betSlip,
-      wager: wagerAmount,
-      parlayId: parlayId
-    })
-  });
+const timestamp = new Date().toLocaleString();
+const week = DEV_OVERRIDE_WEEK !== null ? DEV_OVERRIDE_WEEK : getCurrentNFLWeek();
+
+const formattedBets = betSlip.map(bet => ({
+  parlayId,
+  timestamp,
+  user: currentUser,
+  week,
+  type: bet.type,
+  selection: bet.label,
+  odds: bet.odds,
+  wager: wagerAmount
+}));
+
+fetch(SCRIPT_ENDPOINT, {
+  method: "POST",
+  mode: "no-cors",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ bets: formattedBets })
+});
+
 
   alert("Bet submitted!");
   betSlip = [];
