@@ -26,11 +26,13 @@
     users.forEach(user => {
       const btn = document.createElement("button");
       btn.textContent = user;
+      btn.className = "login-btn";
       btn.addEventListener("click", () => {
         const enteredPin = prompt(`Enter PIN for ${user}:`);
         if (enteredPin === pins[user]) {
-          localStorage.setItem("loggedInUser", user); // ✅ Store username
-          window.location.href = "bet.html";          // Redirect to bet page
+          // ✅ Fixed: Set the correct key that script.js expects
+          localStorage.setItem("bobbybets_user", user);
+          window.location.href = "bet.html";
         } else {
           alert("Incorrect PIN.");
         }
