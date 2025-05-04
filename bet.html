@@ -11,9 +11,9 @@
   <h2>Welcome, <span id="user-name">Unknown</span></h2>
   <p><strong>Bankroll:</strong> $<span id="bankroll">0.00</span></p>
   <hr />
-  
+
   <div id="matchups"></div>
-  
+
   <div id="bet-slip" class="bet-slip">
     <h3>Bet Slip</h3>
     <p>Wager: $<input id="wager-input" type="number" value="50" min="1" /></p>
@@ -22,6 +22,14 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <script>
+    const currentUser = localStorage.getItem("bobbybets_user");
+    if (currentUser) {
+      document.getElementById("user-name").textContent = currentUser;
+    }
+  </script>
+
   <script src="script.js"></script>
 </body>
 </html>
