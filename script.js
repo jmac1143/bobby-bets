@@ -8,9 +8,14 @@ let wagerAmount = 50;
 
 document.getElementById("user-name").textContent = currentUser || "Unknown";
 
-function calculatePayout(wager, odds) {
-  if (odds > 0) return +(wager + (wager * odds / 100)).toFixed(2);
-  return +(wager + (wager * 100 / Math.abs(odds))).toFixed(2);
+function toDecimal(odds) {
+  return odds > 0 ? (odds / 100 + 1) : (100 / Math.abs(odds) + 1);
+}
+
+function calculateParlayPayout(wager, bets) {
+  if (!bets.length) return 0;
+  const combinedDecimal = bets.reduce((acc, bet) => acc * toDecimal(bet.odds), 1);
+  return +(wager * combinedDecimal).toFixed(2);
 }
 
 Papa.parse(MATCHUP_CSV, {
@@ -25,13 +30,12 @@ Papa.parse(MATCHUP_CSV, {
 
       const teamA = row["Team A"];
       const teamB = row["Team B"];
-      const spread = parseFloat(row["Spread"]);
+      const spread = row["Spread"];
       const mlA = parseInt(row["Moneyline A"]);
       const mlB = parseInt(row["Moneyline B"]);
       const spreadOddsA = row["Spread Odds A"];
       const spreadOddsB = row["Spread Odds B"];
 
-      // Determine favorite and assign spread signs
       let favTeam, favML, favOdds, favSpread;
       let dogTeam, dogML, dogOdds, dogSpread;
 
@@ -39,20 +43,20 @@ Papa.parse(MATCHUP_CSV, {
         favTeam = teamA;
         favML = mlA;
         favOdds = spreadOddsA;
-        favSpread = `-${spread}`;
+        favSpread = spread;
         dogTeam = teamB;
         dogML = mlB;
         dogOdds = spreadOddsB;
-        dogSpread = `+${spread}`;
+        dogSpread = spread;
       } else {
         favTeam = teamB;
         favML = mlB;
         favOdds = spreadOddsB;
-        favSpread = `-${spread}`;
+        favSpread = spread;
         dogTeam = teamA;
         dogML = mlA;
         dogOdds = spreadOddsA;
-        dogSpread = `+${spread}`;
+        dogSpread = spread;
       }
 
       const container = document.createElement("div");
@@ -63,18 +67,20 @@ Papa.parse(MATCHUP_CSV, {
         </button>`;
       };
 
+      const overOdds = Number(row["Over Odds"]) || -110;
+      const underOdds = Number(row["Under Odds"]) || -110;
+      const totalPoints = row["Over/Under Line"] || "";
+
       container.innerHTML = `
         <h3>Game ${i + 1}: ${teamA} vs ${teamB}</h3>
-
         ${makeButton(`${dogTeam} ${dogSpread}`, dogOdds, "spread")}
         ${makeButton(`${favTeam} ${favSpread}`, favOdds, "spread")}
-
         ${makeButton(`${teamA} ML`, mlA, "ml")}
         ${makeButton(`${teamB} ML`, mlB, "ml")}
-
-        ${makeButton(`OVER`, Number(row["Over Odds"]) || -110, "over")}
-        ${makeButton(`UNDER`, Number(row["Under Odds"]) || -110, "under")}
+        ${makeButton(`OVER ${totalPoints}`, overOdds, "over")}
+        ${makeButton(`UNDER ${totalPoints}`, underOdds, "under")}
       `;
+
       matchupsDiv.appendChild(container);
     });
   }
@@ -103,25 +109,26 @@ function removeFromSlip(index) {
 
 function renderSlip() {
   const list = document.getElementById("slip-items");
+  const parlayLine = document.getElementById("parlay-line");
+  const payoutLine = document.getElementById("payout-line");
+
   list.innerHTML = "";
 
-  let totalPayout = 0;
-
   betSlip.forEach((bet, index) => {
-    const payout = calculatePayout(wagerAmount, bet.odds);
-    totalPayout += payout;
-
     const item = document.createElement("li");
     item.innerHTML = `
       ${bet.label} @ ${bet.odds > 0 ? "+" + bet.odds : bet.odds}
-      <span style="margin-left: 10px; color: #aaa;">(Pays $${payout.toFixed(2)})</span>
       <button onclick="removeFromSlip(${index})">X</button>
     `;
     list.appendChild(item);
   });
 
-  const payoutLine = document.getElementById("payout-line");
-  payoutLine.textContent = `Total Wager: $${(wagerAmount * betSlip.length).toFixed(2)} | Potential Return: $${totalPayout.toFixed(2)}`;
+  parlayLine.textContent = betSlip.length === 1
+    ? "Single Bet"
+    : `${betSlip.length}-Leg Parlay`;
+
+  const payout = calculateParlayPayout(wagerAmount, betSlip);
+  payoutLine.textContent = `Wager: $${wagerAmount.toFixed(2)} | Potential Return: $${payout.toFixed(2)}`;
 }
 
 document.getElementById("wager-input").addEventListener("change", (e) => {
