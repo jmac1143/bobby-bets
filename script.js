@@ -11,13 +11,18 @@ let wagerAmount = 50;
 // === Show Username ===
 document.getElementById("user-name").textContent = currentUser || "Unknown";
 
+// === American Odds Helper ===
+function calculatePayout(wager, odds) {
+  if (odds > 0) return +(wager + (wager * odds / 100)).toFixed(2);
+  return +(wager + (wager * 100 / Math.abs(odds))).toFixed(2);
+}
+
 // === Fetch Matchups ===
 Papa.parse(MATCHUP_CSV, {
   download: true,
   header: true,
   complete: function (results) {
     const data = results.data;
-    console.log("MATCHUPS:", data);
     const matchupsDiv = document.getElementById("matchups");
 
     data.forEach((row, i) => {
@@ -25,19 +30,21 @@ Papa.parse(MATCHUP_CSV, {
 
       const container = document.createElement("div");
 
-      const makeButton = (label) => {
+      const makeButton = (label, odds, type) => {
         const isBobbyPick = row["Bobby's Pick"] === label;
-        return `<button onclick="addToSlip('${label}')" ${isBobbyPick ? 'class="bobbys-pick"' : ''}>${label}</button>`;
+        return `<button onclick='addToSlip(${JSON.stringify({ label, odds: Number(odds), type })})' ${isBobbyPick ? 'class="bobbys-pick"' : ''}>
+          ${label} (${odds})
+        </button>`;
       };
 
       container.innerHTML = `
         <h3>Game ${i + 1}: ${row["Team A"]} vs ${row["Team B"]}</h3>
-        ${makeButton(`${row["Team A"]} +${row["Spread"]}`)}
-        ${makeButton(`${row["Team B"]} -${row["Spread"]}`)}
-        ${makeButton(`${row["Team A"]} ML`)}
-        ${makeButton(`${row["Team B"]} ML`)}
-        ${makeButton(`OVER ${row["Over Odds"]}`)}
-        ${makeButton(`UNDER ${row["Under Odds"]}`)}
+        ${makeButton(`${row["Team A"]} +${row["Spread"]}`, row["Spread Odds"] || -110, "spread")}
+        ${makeButton(`${row["Team B"]} -${row["Spread"]}`, row["Spread Odds"] || -110, "spread")}
+        ${makeButton(`${row["Team A"]} ML`, row["Team A ML"] || -110, "ml")}
+        ${makeButton(`${row["Team B"]} ML`, row["Team B ML"] || -110, "ml")}
+        ${makeButton(`OVER ${row["Over Odds"]}`, row["Over Odds"] || -110, "over")}
+        ${makeButton(`UNDER ${row["Under Odds"]}`, row["Under Odds"] || -110, "under")}
       `;
       matchupsDiv.appendChild(container);
     });
@@ -50,34 +57,16 @@ Papa.parse(BANKROLL_CSV, {
   header: true,
   complete: function (results) {
     const data = results.data;
-    console.log("BANKROLLS:", data);
-    console.log("Looking for user:", currentUser);
-
     const userRow = data.find(row => row.Bettor?.trim().toLowerCase() === currentUser?.trim().toLowerCase());
-    console.log("Matched userRow:", userRow);
-
-    const bankroll = userRow
-      ? parseFloat(userRow.Bankroll.replace(/[\$,]/g, '')) || 0
-      : 0;
-
+    const bankroll = userRow ? parseFloat(userRow.Bankroll.replace(/[\$,]/g, '')) || 0 : 0;
     document.getElementById("bankroll").textContent = bankroll.toFixed(2);
   }
 });
 
-// === Bet Slip Functions ===
-function addToSlip(bet) {
-  betSlip.push(bet);
+// === Bet Slip Logic ===
+function addToSlip(betObj) {
+  betSlip.push(betObj);
   renderSlip();
-}
-
-function renderSlip() {
-  const list = document.getElementById("slip-items");
-  list.innerHTML = "";
-  betSlip.forEach((bet, index) => {
-    const item = document.createElement("li");
-    item.innerHTML = `${bet} <button onclick="removeFromSlip(${index})">X</button>`;
-    list.appendChild(item);
-  });
 }
 
 function removeFromSlip(index) {
@@ -85,8 +74,33 @@ function removeFromSlip(index) {
   renderSlip();
 }
 
+function renderSlip() {
+  const list = document.getElementById("slip-items");
+  list.innerHTML = "";
+
+  let totalPayout = 0;
+
+  betSlip.forEach((bet, index) => {
+    const payout = calculatePayout(wagerAmount, bet.odds);
+    totalPayout += payout;
+
+    const item = document.createElement("li");
+    item.innerHTML = `
+      ${bet.label} @ ${bet.odds}
+      <span style="margin-left: 10px; color: #aaa;">(Pays $${payout.toFixed(2)})</span>
+      <button onclick="removeFromSlip(${index})">X</button>
+    `;
+    list.appendChild(item);
+  });
+
+  const payoutLine = document.getElementById("payout-line");
+  payoutLine.textContent = `Total Wager: $${(wagerAmount * betSlip.length).toFixed(2)} | Potential Return: $${totalPayout.toFixed(2)}`;
+}
+
+// === Input + Actions ===
 document.getElementById("wager-input").addEventListener("change", (e) => {
   wagerAmount = parseFloat(e.target.value);
+  renderSlip();
 });
 
 document.getElementById("reset-slip").addEventListener("click", () => {
