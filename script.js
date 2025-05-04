@@ -1,4 +1,35 @@
-const MATCHUP_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=0&single=true&output=csv";
+// === WEEK CONFIGURATION ===
+const WEEK_GID_MAP = {
+  1: "0",
+  2: "202324890",
+  3: "441155668",
+  4: "1793741269",
+  5: "1409141359",
+  6: "1172649228",
+  7: "1722653524",
+  8: "2095287272",
+  9: "412313481",
+  10: "1159601837",
+  11: "1864571679",
+  12: "480970597",
+  13: "285082386",
+  14: "858725653"
+};
+
+function getCurrentNFLWeek() {
+  const week1Start = new Date("2025-09-02T12:00:00"); // Tuesday, Noon
+  const now = new Date();
+  const diffMs = now - week1Start;
+  const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+  const week = Math.floor(diffMs / oneWeekMs) + 1;
+  return Math.min(Math.max(week, 1), 14); // Cap at Week 14
+}
+
+const DEV_OVERRIDE_WEEK = 1; // Set to null to use live logic
+const currentWeek = DEV_OVERRIDE_WEEK || getCurrentNFLWeek();
+const matchupGID = WEEK_GID_MAP[currentWeek];
+const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${matchupGID}&single=true&output=csv`;
+
 const BANKROLL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
 const SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbyxG9FNe2oKdqxfdcqBXfWGy8hF83ATkT-hKLiowa3Iyp4GHY5z5CJf0t3XISG8exS/exec";
 
@@ -7,6 +38,9 @@ let betSlip = [];
 let wagerAmount = 50;
 
 document.getElementById("user-name").textContent = currentUser || "Unknown";
+const weekLabel = document.createElement("p");
+weekLabel.innerHTML = `<strong>Current NFL Week:</strong> ${currentWeek}`;
+document.body.insertBefore(weekLabel, document.getElementById("matchups"));
 
 Papa.parse(MATCHUP_CSV, {
   download: true,
@@ -40,13 +74,10 @@ Papa.parse(MATCHUP_CSV, {
 
       container.innerHTML = `
         <h3>Game ${i + 1}: ${teamA} vs ${teamB}</h3>
-
         ${makeButton(`${teamA} ${spread}`, spreadOddsA, "spread")}
         ${makeButton(`${teamB} ${spread}`, spreadOddsB, "spread")}
-
         ${makeButton(`${teamA} ML`, mlA, "ml")}
         ${makeButton(`${teamB} ML`, mlB, "ml")}
-
         ${makeButton(`OVER ${totalPoints}`, overOdds, "over")}
         ${makeButton(`UNDER ${totalPoints}`, underOdds, "under")}
       `;
@@ -99,7 +130,6 @@ function renderSlip() {
     return;
   }
 
-  // === Combined Decimal Odds
   let decimalOdds = 1;
   betSlip.forEach(bet => {
     const odds = parseInt(bet.odds);
@@ -107,12 +137,10 @@ function renderSlip() {
     decimalOdds *= decimal;
   });
 
-  // === Back to American Format (for display only)
   const parlayAmerican = decimalOdds >= 2
     ? `+${Math.round((decimalOdds - 1) * 100)}`
     : `-${Math.round(100 / (decimalOdds - 1))}`;
 
-  // === Payout
   const payout = wagerAmount * decimalOdds;
 
   if (betSlip.length === 1) {
