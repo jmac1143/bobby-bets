@@ -22,12 +22,7 @@
     <button id="submit-bet">Submit Bet</button>
   </div>
 
-  <script>
-    // Immediately show username from localStorage before loading external script
-    const currentUser = localStorage.getItem('bobbybets_user');
-    document.getElementById('user-name').textContent = currentUser || 'Unknown';
-  </script>
-
+  <!-- Remove inline script — handled by script.js -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="script.js"></script>
 </body>
