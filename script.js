@@ -1,29 +1,29 @@
-// Updated script.js with accurate sheet headers and logic
-
-const MATCHUP_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?output=csv";
+// === CONFIG: Sheet URLs ===
+const MATCHUP_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=0&single=true&output=csv";
 const BANKROLL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
-const SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxG9FNe2oKdqxfdcqBXFWGY8hF83ATkT-hKLiowa31yp4GHYy5z5CJf0t3XISG8eXS-/exec";
+const SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbyxG9FNe2oKdqxfdcqBXfWGy8hF83ATkT-hKLiowa3Iyp4GHY5z5CJf0t3XISG8exS/exec"; // replace with your actual Apps Script URL
 
-let currentUser = localStorage.getItem('bobbybets_user');
+// === Globals ===
+let currentUser = localStorage.getItem("bobbybets_user");
 let betSlip = [];
-let bankroll = 0;
 let wagerAmount = 50;
 
-// Display username
-const userDisplay = document.getElementById('user-name');
-if (userDisplay) userDisplay.textContent = currentUser || 'Unknown';
+// === Update Username ===
+document.getElementById("user-name").textContent = currentUser || "Unknown";
 
-// Fetch and display matchups
+// === Fetch Matchups ===
 Papa.parse(MATCHUP_CSV, {
   download: true,
   header: true,
-  complete: function(results) {
-    const matchups = results.data;
-    const matchupsContainer = document.getElementById("matchups");
-    matchups.forEach((row, i) => {
-      const gameDiv = document.createElement("div");
-      gameDiv.className = "matchup";
-      gameDiv.innerHTML = `
+  complete: function (results) {
+    const data = results.data;
+    const matchupsDiv = document.getElementById("matchups");
+
+    data.forEach((row, i) => {
+      if (!row["Team A"] || !row["Team B"]) return;
+
+      const container = document.createElement("div");
+      container.innerHTML = `
         <h3>Game ${i + 1}: ${row["Team A"]} vs ${row["Team B"]}</h3>
         <button onclick="addToSlip('${row["Team A"]} +${row["Spread"]}')">${row["Team A"]} +${row["Spread"]}</button>
         <button onclick="addToSlip('${row["Team B"]} -${row["Spread"]}')">${row["Team B"]} -${row["Spread"]}</button>
@@ -32,35 +32,37 @@ Papa.parse(MATCHUP_CSV, {
         <button onclick="addToSlip('OVER ${row["Over Odds"]}')">OVER ${row["Over Odds"]}</button>
         <button onclick="addToSlip('UNDER ${row["Under Odds"]}')">UNDER ${row["Under Odds"]}</button>
       `;
-      matchupsContainer.appendChild(gameDiv);
+      matchupsDiv.appendChild(container);
     });
   }
 });
 
-// Fetch bankroll
+// === Fetch Bankroll ===
 Papa.parse(BANKROLL_CSV, {
   download: true,
   header: true,
-  complete: function(results) {
-    const rows = results.data;
-    const userRow = rows.find(r => r.User?.trim() === currentUser);
-    bankroll = userRow ? parseFloat(userRow.Balance || "0") : 0;
-    const bankrollEl = document.getElementById("bankroll");
-    if (bankrollEl) bankrollEl.textContent = bankroll.toFixed(2);
+  complete: function (results) {
+    const data = results.data;
+    const userRow = data.find(row => row.Name?.toLowerCase() === currentUser?.toLowerCase());
+    const bankroll = userRow ? parseFloat(userRow.Bankroll || 0) : 0;
+    document.getElementById("bankroll").textContent = bankroll.toFixed(2);
   }
 });
 
-function addToSlip(betText) {
-  betSlip.push(betText);
+// === Bet Slip Functions ===
+function addToSlip(bet) {
+  betSlip.push(bet);
   renderSlip();
 }
 
 function renderSlip() {
-  const slipEl = document.getElementById("betSlip");
-  slipEl.innerHTML = '<h3>Bet Slip</h3><ul>' + betSlip.map((bet, i) => `<li>${bet} <button onclick="removeFromSlip(${i})">X</button></li>`).join('') + '</ul>' +
-    `<label>Wager: $<input type="number" id="wagerInput" value="${wagerAmount}" onchange="updateWager(this.value)" /></label><br>
-    <button onclick="resetSlip()">Reset Slip</button>
-    <button onclick="submitSlip()">Submit Bet</button>`;
+  const list = document.getElementById("slip-items");
+  list.innerHTML = "";
+  betSlip.forEach((bet, index) => {
+    const item = document.createElement("li");
+    item.innerHTML = `${bet} <button onclick="removeFromSlip(${index})">X</button>`;
+    list.appendChild(item);
+  });
 }
 
 function removeFromSlip(index) {
@@ -68,35 +70,30 @@ function removeFromSlip(index) {
   renderSlip();
 }
 
-function resetSlip() {
+document.getElementById("wager-input").addEventListener("change", (e) => {
+  wagerAmount = parseFloat(e.target.value);
+});
+
+document.getElementById("reset-slip").addEventListener("click", () => {
   betSlip = [];
   renderSlip();
-}
+});
 
-function updateWager(value) {
-  wagerAmount = parseFloat(value) || 0;
-}
-
-function submitSlip() {
-  if (!currentUser || betSlip.length === 0 || wagerAmount <= 0 || wagerAmount > bankroll) {
-    alert("Check your user, bet slip, or wager amount.");
-    return;
-  }
+document.getElementById("submit-bet").addEventListener("click", () => {
+  if (!currentUser || betSlip.length === 0) return alert("Invalid bet or user");
 
   fetch(SCRIPT_ENDPOINT, {
-    method: 'POST',
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       user: currentUser,
       bets: betSlip,
-      amount: wagerAmount
-    }),
-    headers: { 'Content-Type': 'application/json' }
-  })
-  .then(res => res.text())
-  .then(data => {
-    alert("Bet submitted!");
-    resetSlip();
-    location.reload();
-  })
-  .catch(err => alert("Error submitting bet."));
-}
+      wager: wagerAmount
+    })
+  });
+
+  alert("Bet submitted!");
+  betSlip = [];
+  renderSlip();
+});
