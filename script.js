@@ -31,7 +31,8 @@ const matchupGID = WEEK_GID_MAP[currentWeek];
 const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${matchupGID}&single=true&output=csv`;
 
 const BANKROLL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
-const SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbyxG9FNe2oKdqxfdcqBXfWGy8hF83ATkT-hKLiowa3Iyp4GHY5z5CJf0t3XISG8exS/exec";
+const SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycby5cF6WZGXv7Yg_39wNLrzU6t5D5ofLXB-NH1ebv16Z9OGY5CSdDrR9_tyBOW7PQE2g/exec";
+
 
 let currentUser = localStorage.getItem("bobbybets_user");
 let betSlip = [];
