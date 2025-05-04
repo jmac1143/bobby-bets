@@ -8,7 +8,7 @@ let currentUser = localStorage.getItem("bobbybets_user");
 let betSlip = [];
 let wagerAmount = 50;
 
-// === Update Username ===
+// === Show Username ===
 document.getElementById("user-name").textContent = currentUser || "Unknown";
 
 // === Fetch Matchups ===
@@ -17,22 +17,27 @@ Papa.parse(MATCHUP_CSV, {
   header: true,
   complete: function (results) {
     const data = results.data;
-    console.log("MATCHUPS:", data); // Debug
-
+    console.log("MATCHUPS:", data);
     const matchupsDiv = document.getElementById("matchups");
 
     data.forEach((row, i) => {
       if (!row["Team A"] || !row["Team B"]) return;
 
       const container = document.createElement("div");
+
+      const makeButton = (label) => {
+        const isBobbyPick = row["Bobby's Pick"] === label;
+        return `<button onclick="addToSlip('${label}')" ${isBobbyPick ? 'class="bobbys-pick"' : ''}>${label}</button>`;
+      };
+
       container.innerHTML = `
         <h3>Game ${i + 1}: ${row["Team A"]} vs ${row["Team B"]}</h3>
-        <button onclick="addToSlip('${row["Team A"]} +${row["Spread"]}')" ${row["Bobby's Pick"] === `${row["Team A"]} +${row["Spread"]}` ? 'class="bobbys-pick"' : ''}>${row["Team A"]} +${row["Spread"]}</button>
-        <button onclick="addToSlip('${row["Team B"]} -${row["Spread"]}')" ${row["Bobby's Pick"] === `${row["Team B"]} -${row["Spread"]}` ? 'class="bobbys-pick"' : ''}>${row["Team B"]} -${row["Spread"]}</button>
-        <button onclick="addToSlip('${row["Team A"]} ML')" ${row["Bobby's Pick"] === `${row["Team A"]} ML` ? 'class="bobbys-pick"' : ''}>${row["Team A"]} ML</button>
-        <button onclick="addToSlip('${row["Team B"]} ML')" ${row["Bobby's Pick"] === `${row["Team B"]} ML` ? 'class="bobbys-pick"' : ''}>${row["Team B"]} ML</button>
-        <button onclick="addToSlip('OVER ${row["Over Odds"]}')" ${row["Bobby's Pick"] === `OVER ${row["Over Odds"]}` ? 'class="bobbys-pick"' : ''}>OVER ${row["Over Odds"]}</button>
-        <button onclick="addToSlip('UNDER ${row["Under Odds"]}')" ${row["Bobby's Pick"] === `UNDER ${row["Under Odds"]}` ? 'class="bobbys-pick"' : ''}>UNDER ${row["Under Odds"]}</button>
+        ${makeButton(`${row["Team A"]} +${row["Spread"]}`)}
+        ${makeButton(`${row["Team B"]} -${row["Spread"]}`)}
+        ${makeButton(`${row["Team A"]} ML`)}
+        ${makeButton(`${row["Team B"]} ML`)}
+        ${makeButton(`OVER ${row["Over Odds"]}`)}
+        ${makeButton(`UNDER ${row["Under Odds"]}`)}
       `;
       matchupsDiv.appendChild(container);
     });
@@ -46,8 +51,10 @@ Papa.parse(BANKROLL_CSV, {
   complete: function (results) {
     const data = results.data;
     console.log("BANKROLLS:", data);
+    console.log("Looking for user:", currentUser);
 
-    const userRow = data.find(row => row.Bettor?.toLowerCase() === currentUser?.toLowerCase());
+    const userRow = data.find(row => row.Bettor?.trim().toLowerCase() === currentUser?.trim().toLowerCase());
+    console.log("Matched userRow:", userRow);
 
     const bankroll = userRow
       ? parseFloat(userRow.Bankroll.replace(/[\$,]/g, '')) || 0
