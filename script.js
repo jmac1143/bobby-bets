@@ -28,36 +28,13 @@ Papa.parse(MATCHUP_CSV, {
     data.forEach((row, i) => {
       if (!row["Team A"] || !row["Team B"]) return;
 
-      const teamA = row["Team A"];
-      const teamB = row["Team B"];
+      const teamA = row["Team A"].trim();
+      const teamB = row["Team B"].trim();
       const spread = row["Spread"];
       const mlA = parseInt(row["Moneyline A"]);
       const mlB = parseInt(row["Moneyline B"]);
-      const spreadOddsA = row["Spread Odds A"];
-      const spreadOddsB = row["Spread Odds B"];
-
-      let favTeam, favML, favOdds, favSpread;
-      let dogTeam, dogML, dogOdds, dogSpread;
-
-      if (mlA < mlB) {
-        favTeam = teamA;
-        favML = mlA;
-        favOdds = spreadOddsA;
-        favSpread = spread;
-        dogTeam = teamB;
-        dogML = mlB;
-        dogOdds = spreadOddsB;
-        dogSpread = spread;
-      } else {
-        favTeam = teamB;
-        favML = mlB;
-        favOdds = spreadOddsB;
-        favSpread = spread;
-        dogTeam = teamA;
-        dogML = mlA;
-        dogOdds = spreadOddsA;
-        dogSpread = spread;
-      }
+      const spreadOddsA = parseInt(row["Spread Odds A"]);
+      const spreadOddsB = parseInt(row["Spread Odds B"]);
 
       const container = document.createElement("div");
 
@@ -73,10 +50,13 @@ Papa.parse(MATCHUP_CSV, {
 
       container.innerHTML = `
         <h3>Game ${i + 1}: ${teamA} vs ${teamB}</h3>
-        ${makeButton(`${dogTeam} ${dogSpread}`, dogOdds, "spread")}
-        ${makeButton(`${favTeam} ${favSpread}`, favOdds, "spread")}
+
+        ${makeButton(`${teamA} ${spread}`, spreadOddsA, "spread")}
+        ${makeButton(`${teamB} ${spread}`, spreadOddsB, "spread")}
+
         ${makeButton(`${teamA} ML`, mlA, "ml")}
         ${makeButton(`${teamB} ML`, mlB, "ml")}
+
         ${makeButton(`OVER ${totalPoints}`, overOdds, "over")}
         ${makeButton(`UNDER ${totalPoints}`, underOdds, "under")}
       `;
