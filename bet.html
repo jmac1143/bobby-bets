@@ -16,20 +16,19 @@
 
   <div id="bet-slip" class="bet-slip">
     <h3>Bet Slip</h3>
+    <ul id="slip-items"></ul>
     <p>Wager: $<input id="wager-input" type="number" value="50" min="1" /></p>
     <button id="reset-slip">Reset Slip</button>
     <button id="submit-bet">Submit Bet</button>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
   <script>
-    const currentUser = localStorage.getItem("bobbybets_user");
-    if (currentUser) {
-      document.getElementById("user-name").textContent = currentUser;
-    }
+    // Immediately show username from localStorage before loading external script
+    const currentUser = localStorage.getItem('bobbybets_user');
+    document.getElementById('user-name').textContent = currentUser || 'Unknown';
   </script>
 
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
