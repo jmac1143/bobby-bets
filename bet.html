@@ -17,14 +17,19 @@
   <div id="bet-slip" class="bet-slip">
     <h3>Bet Slip</h3>
     <ul id="slip-items"></ul>
+    <p id="parlay-line" style="margin-top: 5px; font-style: italic;"></p>
     <p>Wager: $<input id="wager-input" type="number" value="50" min="1" /></p>
     <button id="reset-slip">Reset Slip</button>
     <button id="submit-bet">Submit Bet</button>
     <p id="payout-line" style="margin-top: 10px;"></p>
-
   </div>
 
-  <!-- Remove inline script — handled by script.js -->
+  <script>
+    // Show stored user name immediately before script.js runs
+    const currentUser = localStorage.getItem('bobbybets_user');
+    document.getElementById('user-name').textContent = currentUser || 'Unknown';
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="script.js"></script>
 </body>
