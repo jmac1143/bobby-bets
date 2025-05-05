@@ -1,6 +1,6 @@
 // === CONFIG ===
 const BANKROLL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
-const SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbywuqWCvxVeSTgXqOjW4tow2x62oT3-E_kh4Ya4DgUhjU-lIp38WhEwQT7Yw-usSoiV/exec";
+const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
 
 // === WEEK GID MAP ===
 const WEEK_GID_MAP = {
