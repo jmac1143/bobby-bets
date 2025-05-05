@@ -189,5 +189,7 @@ document.getElementById("submit-bet").addEventListener("click", () => {
   .catch(error => {
     console.error("Error submitting bet:", error);
     alert("Error submitting bet. Check console.");
+    console.log("Submitting Payload:", payload);
+
   });
 });
