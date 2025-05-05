@@ -1,4 +1,4 @@
-// === CONFIG ===
+// === CONFIG === 
 const BANKROLL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
 const SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbyMg3algwdEFDSKOe5fbALNHToe6yT-0I4cEkpwvM_2xajpYXrmIyyqtpjVzneSgyMz/exec";
 
@@ -166,7 +166,7 @@ document.getElementById("submit-bet").addEventListener("click", () => {
   const formattedBets = betSlip.map(bet => ({
     parlayId,
     timestamp,
-    user: currentUser,
+    bettor: currentUser, // ✅ FIXED FIELD NAME
     week,
     type: bet.type,
     selection: bet.label,
