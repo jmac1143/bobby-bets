@@ -157,39 +157,32 @@ document.getElementById("reset-slip").addEventListener("click", () => {
 });
 
 document.getElementById("submit-bet").addEventListener("click", () => {
-  if (!currentUser || betSlip.length === 0) return alert("Invalid bet or user");
+  if (!currentUser || betSlip.length === 0) {
+    alert("Invalid bet or user");
+    return;
+  }
 
-  const parlayId = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14) + "_" + currentUser;
   const timestamp = new Date().toLocaleString();
   const week = getCurrentNFLWeek();
 
- const payload = {
-  bettor: currentUser,
-  bets: betSlip.map(bet => ({
-    type: bet.type,
-    selection: bet.label,
-    odds: Number(bet.odds)
-  })),
-  wager: wagerAmount,
-  parlayId,
-  timestamp,
-  week
-};
+  const payload = {
+    bettor: currentUser,
+    bets: betSlip.map(bet => ({
+      type: bet.type,
+      selection: bet.label,
+      odds: Number(bet.odds)
+    })),
+    wager: wagerAmount,
+    timestamp,
+    week
+  };
 
-console.log("Submitting Payload:", payload); // helpful for debugging
-
-fetch(SCRIPT_ENDPOINT, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload)
-})
-
-  });
+  console.log("Submitting Payload:", payload); // ✅ Debugging help
 
   fetch(SCRIPT_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ bets: formattedBets })
+    body: JSON.stringify(payload)
   })
   .then(res => res.text())
   .then(response => {
@@ -201,7 +194,5 @@ fetch(SCRIPT_ENDPOINT, {
   .catch(error => {
     console.error("Error submitting bet:", error);
     alert("Error submitting bet. Check console.");
-    console.log("Submitting Payload:", payload);
-
   });
-
+});
