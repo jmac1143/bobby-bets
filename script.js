@@ -167,13 +167,22 @@ document.getElementById("submit-bet").addEventListener("click", () => {
     }))
   };
 
-  fetch(SCRIPT_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-
+fetch(SCRIPT_ENDPOINT, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify(payload)
+})
+.then(res => res.text())
+.then(response => {
+  console.log("Success:", response);
   alert("Bet submitted!");
   betSlip = [];
   renderSlip();
+})
+.catch(error => {
+  console.error("Error submitting bet:", error);
+  alert("Error submitting bet. Check console.");
 });
+
