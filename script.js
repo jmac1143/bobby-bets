@@ -1,6 +1,6 @@
-// === CONFIG === 
+// === CONFIG ===  
 const BANKROLL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
-const SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbyMg3algwdEFDSKOe5fbALNHToe6yT-0I4cEkpwvM_2xajpYXrmIyyqtpjVzneSgyMz/exec";
+const SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbywuqWCvxVeSTgXqOjW4tow2x62oT3-E_kh4Ya4DgUhjU-lIp38WhEwQT7Yw-usSoiV/exec";
 
 // === WEEK GID MAP ===
 const WEEK_GID_MAP = {
@@ -9,7 +9,6 @@ const WEEK_GID_MAP = {
   10: "1159601837", 11: "1864571679", 12: "480970597", 13: "285082386", 14: "858725653"
 };
 
-// === DEV OVERRIDE: Set to number to force specific week ===
 const DEV_OVERRIDE_WEEK = null;
 
 function getCurrentNFLWeek() {
@@ -29,7 +28,7 @@ function getCurrentNFLWeek() {
   return 1;
 }
 
-// === Fetch Matchups ===
+// === FETCH MATCHUPS ===
 const weekNum = getCurrentNFLWeek();
 const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
@@ -38,7 +37,6 @@ let currentUser = localStorage.getItem("bobbybets_user");
 let betSlip = [];
 let wagerAmount = 50;
 
-// Display user
 document.getElementById("user-name").textContent = currentUser || "Unknown";
 
 // Load matchups
@@ -161,17 +159,17 @@ document.getElementById("submit-bet").addEventListener("click", () => {
 
   const parlayId = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14) + "_" + currentUser;
   const timestamp = new Date().toLocaleString();
-  const week = DEV_OVERRIDE_WEEK !== null ? DEV_OVERRIDE_WEEK : getCurrentNFLWeek();
+  const week = getCurrentNFLWeek();
 
   const formattedBets = betSlip.map(bet => ({
     parlayId,
     timestamp,
-    bettor: currentUser, // ✅ FIXED FIELD NAME
+    bettor: currentUser,
     week,
     type: bet.type,
     selection: bet.label,
-    odds: bet.odds,
-    wager: wagerAmount
+    odds: Number(bet.odds),
+    wager: Number(wagerAmount)
   }));
 
   fetch(SCRIPT_ENDPOINT, {
