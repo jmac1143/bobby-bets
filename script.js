@@ -1,16 +1,20 @@
-// === FINAL script.js (Frontend) ===
+// === CONFIG ===
 const BANKROLL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
 const SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbywuqWCvxVeSTgXqOjW4tow2x62oT3-E_kh4Ya4DgUhjU-lIp38WhEwQT7Yw-usSoiV/exec";
 
+// === WEEK GID MAP ===
 const WEEK_GID_MAP = {
   1: "0", 2: "202324890", 3: "441155668", 4: "1793741269", 5: "1409141359",
   6: "1172649228", 7: "1722653524", 8: "2095287272", 9: "412313481",
   10: "1159601837", 11: "1864571679", 12: "480970597", 13: "285082386", 14: "858725653"
 };
 
+// === DEV WEEK OVERRIDE ===
 const DEV_OVERRIDE_WEEK = null;
+
 function getCurrentNFLWeek() {
   if (DEV_OVERRIDE_WEEK !== null) return DEV_OVERRIDE_WEEK;
+
   const startDates = [
     "2025-09-02T12:00:00", "2025-09-09T12:00:00", "2025-09-16T12:00:00",
     "2025-09-23T12:00:00", "2025-09-30T12:00:00", "2025-10-07T12:00:00",
@@ -18,6 +22,7 @@ function getCurrentNFLWeek() {
     "2025-11-04T12:00:00", "2025-11-11T12:00:00", "2025-11-18T12:00:00",
     "2025-11-25T12:00:00", "2025-12-02T12:00:00"
   ];
+
   const now = new Date();
   for (let i = startDates.length - 1; i >= 0; i--) {
     if (now >= new Date(startDates[i])) return i + 1;
@@ -25,6 +30,7 @@ function getCurrentNFLWeek() {
   return 1;
 }
 
+// === LOAD DATA ===
 const weekNum = getCurrentNFLWeek();
 const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
@@ -35,6 +41,7 @@ let wagerAmount = 50;
 
 document.getElementById("user-name").textContent = currentUser || "Unknown";
 
+// === LOAD MATCHUPS ===
 Papa.parse(MATCHUP_CSV, {
   download: true,
   header: true,
@@ -77,6 +84,7 @@ Papa.parse(MATCHUP_CSV, {
   }
 });
 
+// === LOAD BANKROLL ===
 Papa.parse(BANKROLL_CSV, {
   download: true,
   header: true,
@@ -88,6 +96,7 @@ Papa.parse(BANKROLL_CSV, {
   }
 });
 
+// === BET SLIP ===
 function addToSlip(bet) {
   betSlip.push(bet);
   renderSlip();
@@ -154,35 +163,31 @@ document.getElementById("submit-bet").addEventListener("click", () => {
   const timestamp = new Date().toLocaleString();
   const week = getCurrentNFLWeek();
 
-  const payload = {
-    bettor: currentUser,
+  const formattedBets = betSlip.map(bet => ({
     parlayId,
     timestamp,
+    bettor: currentUser,
     week,
-    wager: wagerAmount,
-    bets: betSlip.map(bet => ({
-      type: bet.type,
-      selection: bet.label,
-      odds: bet.odds
-    }))
-  };
+    type: bet.type,
+    selection: bet.label,
+    odds: bet.odds,
+    wager: wagerAmount
+  }));
 
-fetch(SCRIPT_ENDPOINT, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify(payload)
-})
-.then(res => res.text())
-.then(response => {
-  console.log("Success:", response);
-  alert("Bet submitted!");
-  betSlip = [];
-  renderSlip();
-})
-.catch(error => {
-  console.error("Error submitting bet:", error);
-  alert("Error submitting bet. Check console.");
+  fetch(SCRIPT_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ bets: formattedBets })
+  })
+  .then(res => res.text())
+  .then(response => {
+    console.log("Success:", response);
+    alert("Bet submitted!");
+    betSlip = [];
+    renderSlip();
+  })
+  .catch(error => {
+    console.error("Error submitting bet:", error);
+    alert("Error submitting bet. Check console.");
+  });
 });
-
