@@ -22,8 +22,12 @@ const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
 
 let currentUser = localStorage.getItem("bobbybets_user");
-if (!currentUser) currentUser = prompt("Enter your name"); // Fallback for testing
+if (!currentUser) {
+  currentUser = prompt("Enter your name");
+  if (currentUser) localStorage.setItem("bobbybets_user", currentUser);
+}
 document.getElementById("user-name").textContent = currentUser || "Unknown";
+
 
 let betSlip = [];
 let wagerAmount = 50;
