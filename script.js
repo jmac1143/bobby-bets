@@ -1,4 +1,4 @@
-// === CONFIG ===  
+// === CONFIG ===
 const BANKROLL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
 const SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbywuqWCvxVeSTgXqOjW4tow2x62oT3-E_kh4Ya4DgUhjU-lIp38WhEwQT7Yw-usSoiV/exec";
 
@@ -10,17 +10,13 @@ const WEEK_GID_MAP = {
 };
 
 const DEV_OVERRIDE_WEEK = null;
-
 function getCurrentNFLWeek() {
   if (DEV_OVERRIDE_WEEK !== null) return DEV_OVERRIDE_WEEK;
-
-  const startDates = [
-    "2025-09-02T12:00:00", "2025-09-09T12:00:00", "2025-09-16T12:00:00",
+  const startDates = ["2025-09-02T12:00:00", "2025-09-09T12:00:00", "2025-09-16T12:00:00",
     "2025-09-23T12:00:00", "2025-09-30T12:00:00", "2025-10-07T12:00:00",
     "2025-10-14T12:00:00", "2025-10-21T12:00:00", "2025-10-28T12:00:00",
     "2025-11-04T12:00:00", "2025-11-11T12:00:00", "2025-11-18T12:00:00",
-    "2025-11-25T12:00:00", "2025-12-02T12:00:00"
-  ];
+    "2025-11-25T12:00:00", "2025-12-02T12:00:00"];
   const now = new Date();
   for (let i = startDates.length - 1; i >= 0; i--) {
     if (now >= new Date(startDates[i])) return i + 1;
@@ -28,7 +24,6 @@ function getCurrentNFLWeek() {
   return 1;
 }
 
-// === FETCH MATCHUPS ===
 const weekNum = getCurrentNFLWeek();
 const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
@@ -36,10 +31,8 @@ const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu
 let currentUser = localStorage.getItem("bobbybets_user");
 let betSlip = [];
 let wagerAmount = 50;
-
 document.getElementById("user-name").textContent = currentUser || "Unknown";
 
-// Load matchups
 Papa.parse(MATCHUP_CSV, {
   download: true,
   header: true,
@@ -49,7 +42,6 @@ Papa.parse(MATCHUP_CSV, {
 
     data.forEach((row, i) => {
       if (!row["Team A"] || !row["Team B"]) return;
-
       const teamA = row["Team A"].trim();
       const teamB = row["Team B"].trim();
       const spread = row["Spread"];
@@ -82,19 +74,17 @@ Papa.parse(MATCHUP_CSV, {
   }
 });
 
-// Load bankroll
 Papa.parse(BANKROLL_CSV, {
   download: true,
   header: true,
   complete: function (results) {
     const data = results.data;
     const userRow = data.find(row => row.Bettor?.trim().toLowerCase() === currentUser?.toLowerCase());
-    const bankroll = userRow ? parseFloat(userRow.Bankroll.replace(/[$,]/g, '')) || 0 : 0;
+    const bankroll = userRow ? parseFloat(row.Bankroll?.replace(/[$,]/g, '')) || 0 : 0;
     document.getElementById("bankroll").textContent = bankroll.toFixed(2);
   }
 });
 
-// === BET SLIP ===
 function addToSlip(bet) {
   betSlip.push(bet);
   renderSlip();
@@ -108,7 +98,6 @@ function removeFromSlip(index) {
 function renderSlip() {
   const list = document.getElementById("slip-items");
   list.innerHTML = "";
-
   betSlip.forEach((bet, index) => {
     list.innerHTML += `
       <li>${bet.label} @ ${bet.odds > 0 ? "+" + bet.odds : bet.odds}
@@ -118,13 +107,11 @@ function renderSlip() {
 
   const parlayLine = document.getElementById("parlay-line");
   const payoutLine = document.getElementById("payout-line");
-
   if (betSlip.length === 0) {
     parlayLine.textContent = "";
     payoutLine.textContent = "";
     return;
   }
-
   let decimalOdds = betSlip.reduce((acc, bet) => {
     const odds = bet.odds;
     const decimal = odds > 0 ? (odds / 100 + 1) : (100 / Math.abs(odds) + 1);
@@ -136,7 +123,6 @@ function renderSlip() {
     : `-${Math.round(100 / (decimalOdds - 1))}`;
 
   const payout = wagerAmount * decimalOdds;
-
   parlayLine.innerHTML = betSlip.length === 1
     ? `<em>Single Bet</em><br>Odds: ${betSlip[0].odds} (${decimalOdds.toFixed(2)})`
     : `<em>${betSlip.length}-Leg Parlay</em><br>Combined Odds: ${parlayAmerican} (${decimalOdds.toFixed(2)})`;
