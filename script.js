@@ -160,28 +160,26 @@ document.getElementById("submit-bet").addEventListener("click", () => {
   if (!currentUser || betSlip.length === 0) return alert("Invalid bet or user");
 
   const parlayId = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14) + "_" + currentUser;
+  const timestamp = new Date().toLocaleString();
+  const week = DEV_OVERRIDE_WEEK !== null ? DEV_OVERRIDE_WEEK : getCurrentNFLWeek();
 
-const timestamp = new Date().toLocaleString();
-const week = DEV_OVERRIDE_WEEK !== null ? DEV_OVERRIDE_WEEK : getCurrentNFLWeek();
+  const formattedBets = betSlip.map(bet => ({
+    parlayId,
+    timestamp,
+    user: currentUser,
+    week,
+    type: bet.type,
+    selection: bet.label,
+    odds: bet.odds,
+    wager: wagerAmount
+  }));
 
-const formattedBets = betSlip.map(bet => ({
-  parlayId,
-  timestamp,
-  user: currentUser,
-  week,
-  type: bet.type,
-  selection: bet.label,
-  odds: bet.odds,
-  wager: wagerAmount
-}));
-
-fetch(SCRIPT_ENDPOINT, {
-  method: "POST",
-  mode: "no-cors",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ bets: formattedBets })
-});
-
+  fetch(SCRIPT_ENDPOINT, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ bets: formattedBets })
+  });
 
   alert("Bet submitted!");
   betSlip = [];
