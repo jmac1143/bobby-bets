@@ -184,7 +184,7 @@ fetch(SCRIPT_ENDPOINT, {
   body: JSON.stringify(payload)
 })
 
-  }));
+  });
 
   fetch(SCRIPT_ENDPOINT, {
     method: "POST",
