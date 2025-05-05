@@ -204,4 +204,4 @@ fetch(SCRIPT_ENDPOINT, {
     console.log("Submitting Payload:", payload);
 
   });
-});
+
