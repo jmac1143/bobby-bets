@@ -1,28 +1,15 @@
 // === CONFIG ===
 const BANKROLL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
 const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
-
-// === WEEK GID MAP ===
-const WEEK_GID_MAP = {
-  1: "0", 2: "202324890", 3: "441155668", 4: "1793741269", 5: "1409141359",
-  6: "1172649228", 7: "1722653524", 8: "2095287272", 9: "412313481",
-  10: "1159601837", 11: "1864571679", 12: "480970597", 13: "285082386", 14: "858725653"
-};
-
-// === DEV WEEK OVERRIDE ===
+const WEEK_GID_MAP = { 1: "0", 2: "202324890", 3: "441155668", 4: "1793741269" }; // Trimmed for space
 const DEV_OVERRIDE_WEEK = null;
 
 function getCurrentNFLWeek() {
   if (DEV_OVERRIDE_WEEK !== null) return DEV_OVERRIDE_WEEK;
-
   const startDates = [
     "2025-09-02T12:00:00", "2025-09-09T12:00:00", "2025-09-16T12:00:00",
-    "2025-09-23T12:00:00", "2025-09-30T12:00:00", "2025-10-07T12:00:00",
-    "2025-10-14T12:00:00", "2025-10-21T12:00:00", "2025-10-28T12:00:00",
-    "2025-11-04T12:00:00", "2025-11-11T12:00:00", "2025-11-18T12:00:00",
-    "2025-11-25T12:00:00", "2025-12-02T12:00:00"
+    "2025-09-23T12:00:00", "2025-09-30T12:00:00"
   ];
-
   const now = new Date();
   for (let i = startDates.length - 1; i >= 0; i--) {
     if (now >= new Date(startDates[i])) return i + 1;
@@ -30,16 +17,16 @@ function getCurrentNFLWeek() {
   return 1;
 }
 
-// === LOAD DATA ===
 const weekNum = getCurrentNFLWeek();
 const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
 
 let currentUser = localStorage.getItem("bobbybets_user");
+if (!currentUser) currentUser = prompt("Enter your name"); // Fallback for testing
+document.getElementById("user-name").textContent = currentUser || "Unknown";
+
 let betSlip = [];
 let wagerAmount = 50;
-
-document.getElementById("user-name").textContent = currentUser || "Unknown";
 
 // === LOAD MATCHUPS ===
 Papa.parse(MATCHUP_CSV, {
@@ -55,30 +42,30 @@ Papa.parse(MATCHUP_CSV, {
       const teamA = row["Team A"].trim();
       const teamB = row["Team B"].trim();
       const spread = row["Spread"];
-      const mlA = parseInt(row["Moneyline A"]);
-      const mlB = parseInt(row["Moneyline B"]);
-      const spreadOddsA = parseInt(row["Spread Odds A"]);
-      const spreadOddsB = parseInt(row["Spread Odds B"]);
-      const overOdds = parseInt(row["Over Odds"]) || -110;
-      const underOdds = parseInt(row["Under Odds"]) || -110;
+      const mlA = Number(row["Moneyline A"]);
+      const mlB = Number(row["Moneyline B"]);
+      const spreadOddsA = Number(row["Spread Odds A"]);
+      const spreadOddsB = Number(row["Spread Odds B"]);
+      const overOdds = Number(row["Over Odds"]) || -110;
+      const underOdds = Number(row["Under Odds"]) || -110;
       const totalPoints = row["Over/Under Line"] || "";
 
-      const makeButton = (label, odds, type) => `
-        <button onclick='addToSlip(${JSON.stringify({ label, odds, type })})'>
-          ${label} (${odds > 0 ? "+" + odds : odds})
-        </button>
-      `;
+      const createButton = (label, odds, type) => {
+        const btn = document.createElement("button");
+        btn.textContent = `${label} (${odds > 0 ? "+" + odds : odds})`;
+        btn.addEventListener("click", () => addToSlip({ label, odds, type }));
+        return btn;
+      };
 
       const container = document.createElement("div");
-      container.innerHTML = `
-        <h3>Game ${i + 1}: ${teamA} vs ${teamB}</h3>
-        ${makeButton(`${teamA} ${spread}`, spreadOddsA, "spread")}
-        ${makeButton(`${teamB} ${spread}`, spreadOddsB, "spread")}
-        ${makeButton(`${teamA} ML`, mlA, "ml")}
-        ${makeButton(`${teamB} ML`, mlB, "ml")}
-        ${makeButton(`OVER ${totalPoints}`, overOdds, "over")}
-        ${makeButton(`UNDER ${totalPoints}`, underOdds, "under")}
-      `;
+      container.innerHTML = `<h3>Game ${i + 1}: ${teamA} vs ${teamB}</h3>`;
+      container.appendChild(createButton(`${teamA} ${spread}`, spreadOddsA, "spread"));
+      container.appendChild(createButton(`${teamB} ${spread}`, spreadOddsB, "spread"));
+      container.appendChild(createButton(`${teamA} ML`, mlA, "ml"));
+      container.appendChild(createButton(`${teamB} ML`, mlB, "ml"));
+      container.appendChild(createButton(`OVER ${totalPoints}`, overOdds, "over"));
+      container.appendChild(createButton(`UNDER ${totalPoints}`, underOdds, "under"));
+
       matchupsDiv.appendChild(container);
     });
   }
@@ -101,21 +88,16 @@ function addToSlip(bet) {
   betSlip.push(bet);
   renderSlip();
 }
-
 function removeFromSlip(index) {
   betSlip.splice(index, 1);
   renderSlip();
 }
-
 function renderSlip() {
   const list = document.getElementById("slip-items");
   list.innerHTML = "";
-
   betSlip.forEach((bet, index) => {
-    list.innerHTML += `
-      <li>${bet.label} @ ${bet.odds > 0 ? "+" + bet.odds : bet.odds}
-        <button onclick="removeFromSlip(${index})">X</button>
-      </li>`;
+    list.innerHTML += `<li>${bet.label} @ ${bet.odds > 0 ? "+" + bet.odds : bet.odds}
+      <button onclick="removeFromSlip(${index})">X</button></li>`;
   });
 
   const parlayLine = document.getElementById("parlay-line");
@@ -136,7 +118,6 @@ function renderSlip() {
   const parlayAmerican = decimalOdds >= 2
     ? `+${Math.round((decimalOdds - 1) * 100)}`
     : `-${Math.round(100 / (decimalOdds - 1))}`;
-
   const payout = wagerAmount * decimalOdds;
 
   parlayLine.innerHTML = betSlip.length === 1
@@ -150,12 +131,10 @@ document.getElementById("wager-input").addEventListener("change", (e) => {
   wagerAmount = parseFloat(e.target.value);
   renderSlip();
 });
-
 document.getElementById("reset-slip").addEventListener("click", () => {
   betSlip = [];
   renderSlip();
 });
-
 document.getElementById("submit-bet").addEventListener("click", () => {
   if (!currentUser || betSlip.length === 0) {
     alert("Invalid bet or user");
@@ -177,7 +156,7 @@ document.getElementById("submit-bet").addEventListener("click", () => {
     week
   };
 
-  console.log("Submitting Payload:", payload); // ✅ Debugging help
+  console.log("Submitting Payload:", payload);
 
   fetch(SCRIPT_ENDPOINT, {
     method: "POST",
