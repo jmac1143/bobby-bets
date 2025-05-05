@@ -1,4 +1,4 @@
-// === CONFIG ===
+// === CONFIG ===  
 const BANKROLL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
 const SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbywuqWCvxVeSTgXqOjW4tow2x62oT3-E_kh4Ya4DgUhjU-lIp38WhEwQT7Yw-usSoiV/exec";
 
@@ -13,6 +13,7 @@ const DEV_OVERRIDE_WEEK = null;
 
 function getCurrentNFLWeek() {
   if (DEV_OVERRIDE_WEEK !== null) return DEV_OVERRIDE_WEEK;
+
   const startDates = [
     "2025-09-02T12:00:00", "2025-09-09T12:00:00", "2025-09-16T12:00:00",
     "2025-09-23T12:00:00", "2025-09-30T12:00:00", "2025-10-07T12:00:00",
@@ -27,15 +28,18 @@ function getCurrentNFLWeek() {
   return 1;
 }
 
-const weekNum = getCurrentNFLWeek();
-const gid = WEEK_GID_MAP[weekNum];
-const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
-
+// === Global Variables
 let currentUser = localStorage.getItem("bobbybets_user");
 let betSlip = [];
 let wagerAmount = 50;
 
+// Display user
 document.getElementById("user-name").textContent = currentUser || "Unknown";
+
+// === Load Matchups ===
+const weekNum = getCurrentNFLWeek();
+const gid = WEEK_GID_MAP[weekNum];
+const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
 
 Papa.parse(MATCHUP_CSV, {
   download: true,
@@ -79,6 +83,7 @@ Papa.parse(MATCHUP_CSV, {
   }
 });
 
+// === Load Bankroll ===
 Papa.parse(BANKROLL_CSV, {
   download: true,
   header: true,
@@ -90,6 +95,7 @@ Papa.parse(BANKROLL_CSV, {
   }
 });
 
+// === Bet Slip Logic ===
 function addToSlip(bet) {
   betSlip.push(bet);
   renderSlip();
@@ -149,18 +155,19 @@ document.getElementById("reset-slip").addEventListener("click", () => {
   renderSlip();
 });
 
+// === Submit Bets ===
 document.getElementById("submit-bet").addEventListener("click", () => {
   if (!currentUser || betSlip.length === 0) return alert("Invalid bet or user");
 
-  const parlayId = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14) + "_" + currentUser;
+  const parlayId = `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}_${currentUser}`;
   const timestamp = new Date().toLocaleString();
   const week = DEV_OVERRIDE_WEEK !== null ? DEV_OVERRIDE_WEEK : getCurrentNFLWeek();
 
   const formattedBets = betSlip.map(bet => ({
-    parlayId,
-    timestamp,
+    parlayId: parlayId,
+    timestamp: timestamp,
     bettor: currentUser,
-    week,
+    week: week,
     type: bet.type,
     selection: bet.label,
     odds: Number(bet.odds),
