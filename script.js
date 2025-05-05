@@ -163,15 +163,27 @@ document.getElementById("submit-bet").addEventListener("click", () => {
   const timestamp = new Date().toLocaleString();
   const week = getCurrentNFLWeek();
 
-  const formattedBets = betSlip.map(bet => ({
-    parlayId,
-    timestamp,
-    bettor: currentUser,
-    week,
+ const payload = {
+  bettor: currentUser,
+  bets: betSlip.map(bet => ({
     type: bet.type,
     selection: bet.label,
-    odds: bet.odds,
-    wager: wagerAmount
+    odds: Number(bet.odds)
+  })),
+  wager: wagerAmount,
+  parlayId,
+  timestamp,
+  week
+};
+
+console.log("Submitting Payload:", payload); // helpful for debugging
+
+fetch(SCRIPT_ENDPOINT, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload)
+})
+
   }));
 
   fetch(SCRIPT_ENDPOINT, {
