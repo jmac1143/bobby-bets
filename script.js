@@ -1,11 +1,11 @@
 // === CONFIG ===
 const BANKROLL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
 const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
+const MAX_WAGER = 500;
 
 const WEEK_GID_MAP = { 1: "0", 2: "202324890", 3: "441155668", 4: "1793741269" };
 const DEV_OVERRIDE_WEEK = null;
 
-// === GET CURRENT WEEK ===
 function getCurrentNFLWeek() {
   if (DEV_OVERRIDE_WEEK !== null) return DEV_OVERRIDE_WEEK;
   const startDates = [
@@ -23,7 +23,6 @@ const weekNum = getCurrentNFLWeek();
 const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
 
-// === USER SETUP ===
 let currentUser = localStorage.getItem("bobbybets_user");
 if (!currentUser) {
   alert("You must log in through the homepage.");
@@ -31,7 +30,6 @@ if (!currentUser) {
 }
 document.getElementById("user-name").textContent = currentUser;
 
-// === INITIAL STATE ===
 let betSlip = [];
 let wagerAmount = 50;
 
@@ -137,11 +135,11 @@ function renderSlip() {
 // === EVENT LISTENERS ===
 document.getElementById("wager-input").addEventListener("change", (e) => {
   const val = parseFloat(e.target.value);
-  if (!isNaN(val) && val > 0) {
+  if (!isNaN(val) && val > 0 && val <= MAX_WAGER) {
     wagerAmount = val;
     renderSlip();
   } else {
-    alert("Enter a valid wager amount.");
+    alert(`Enter a valid wager amount (1 - ${MAX_WAGER})`);
     e.target.value = wagerAmount;
   }
 });
@@ -158,8 +156,8 @@ document.getElementById("submit-bet").addEventListener("click", () => {
   }
 
   const wagerInput = parseFloat(document.getElementById("wager-input").value);
-  if (isNaN(wagerInput) || wagerInput <= 0) {
-    alert("Enter a valid wager amount.");
+  if (isNaN(wagerInput) || wagerInput <= 0 || wagerInput > MAX_WAGER) {
+    alert(`Please enter a valid wager up to $${MAX_WAGER}`);
     return;
   }
 
@@ -168,20 +166,17 @@ document.getElementById("submit-bet").addEventListener("click", () => {
   const timestamp = new Date().toLocaleString();
   const week = getCurrentNFLWeek();
 
-  const formattedBets = betSlip.map(bet => `${bet.type}:${bet.label}@${bet.odds}`).join(" | ");
-
-const payload = {
-  bettor: currentUser,
-  bets: betSlip.map(b => ({
-    type: b.type,
-    selection: b.label,
-    odds: Number(b.odds)
-  })),
-  wager: wagerAmount,
-  timestamp,
-  week
-};
-
+  const payload = {
+    bettor: currentUser,
+    bets: betSlip.map(b => ({
+      type: b.type,
+      selection: b.label,
+      odds: Number(b.odds)
+    })),
+    wager: wagerAmount,
+    timestamp,
+    week
+  };
 
   console.log("Submitting Payload:", payload);
 
@@ -190,15 +185,15 @@ const payload = {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   })
-  .then(res => res.text())
-  .then(response => {
-    console.log("Success:", response);
-    alert("Bet submitted!");
-    betSlip = [];
-    renderSlip();
-  })
-  .catch(error => {
-    console.error("Error submitting bet:", error);
-    alert("Error submitting bet. See console.");
-  });
+    .then(res => res.text())
+    .then(response => {
+      console.log("Success:", response);
+      alert("Bet submitted!");
+      betSlip = [];
+      renderSlip();
+    })
+    .catch(error => {
+      console.error("Error submitting bet:", error);
+      alert("Error submitting bet. See console.");
+    });
 });
