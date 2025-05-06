@@ -1,5 +1,73 @@
+body {
+  font-family: Arial;
+  background: #111;
+  color: white;
+  padding: 20px;
+}
 
-body { font-family: Arial; background: #111; color: white; padding: 20px; }
-.login-container { text-align: center; }
-button { margin: 5px; padding: 10px 16px; font-size: 16px; cursor: pointer; }
-.bet-slip { background: #222; padding: 10px; margin-top: 30px; }
+.login-container {
+  text-align: center;
+}
+
+button {
+  margin: 5px;
+  padding: 10px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.bet-slip {
+  background: #222;
+  padding: 10px;
+  margin-top: 30px;
+}
+
+/* === Leaderboard Styles === */
+
+.leaderboard-toggle {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+.toggle-btn {
+  background-color: #A22D2E;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 10px;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+.toggle-btn.active {
+  background-color: #C79A5B;
+  color: #162636;
+}
+
+.leaderboard-view {
+  margin: 20px auto;
+  max-width: 1000px;
+  padding: 10px;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #0F1C22;
+  color: #fff;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 10px;
+  border: 1px solid #C79A5B;
+  text-align: center;
+}
+
+.leaderboard-table thead {
+  background-color: #A22D2E;
+  color: #fff;
+}
