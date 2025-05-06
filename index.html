@@ -4,12 +4,24 @@
   <meta charset="UTF-8" />
   <title>Bobby Bets - Login</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
   <h1>Welcome to Bobby Bets</h1>
   <p>Please select your name and enter your PIN to begin.</p>
   <div id="login-buttons"></div>
 
+  <!-- Leaderboard Toggle -->
+  <div class="leaderboard-toggle">
+    <button class="toggle-btn active" data-view="weekly">Weekly</button>
+    <button class="toggle-btn" data-view="season">Season</button>
+  </div>
+
+  <!-- Leaderboard Containers -->
+  <div id="weekly-leaderboard" class="leaderboard-view"></div>
+  <div id="season-leaderboard" class="leaderboard-view" style="display: none;"></div>
+
+  <!-- Login Logic -->
   <script>
     const users = [
       "Justin", "Ryan", "JB", "Fyola", "AK", "Seth",
@@ -40,5 +52,8 @@
       container.appendChild(btn);
     });
   </script>
+
+  <!-- Leaderboard Script -->
+  <script src="script.js"></script>
 </body>
 </html>
