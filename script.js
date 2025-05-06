@@ -197,3 +197,108 @@ document.getElementById("submit-bet").addEventListener("click", () => {
       alert("Error submitting bet. See console.");
     });
 });
+// === WEEKLY & SEASON LEADERBOARD FUNCTIONS ===
+function loadWeeklyLeaderboard() {
+  const gid = '1039517288';
+  const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRL8lIZa71AtFnkuxWpspb2z_TuT-SkJFOcMkLTule0w1OHozYNiB-evwAnPMX2WaTLCJNe_BkvZQdj/pub?gid=${gid}&single=true&output=csv`;
+
+  Papa.parse(url, {
+    download: true,
+    header: true,
+    complete: function(results) {
+      renderWeeklyLeaderboard(results.data);
+    }
+  });
+}
+
+function renderWeeklyLeaderboard(data) {
+  const container = document.getElementById("weekly-leaderboard");
+  if (!data || data.length === 0) {
+    container.innerHTML = `<p>No weekly data available.</p>`;
+    return;
+  }
+
+  let html = `<table class="leaderboard-table"><thead><tr>`;
+  const headers = Object.keys(data[0]);
+  headers.forEach(header => {
+    html += `<th>${header}</th>`;
+  });
+  html += `</tr></thead><tbody>`;
+
+  data.forEach(row => {
+    html += `<tr>`;
+    headers.forEach(key => {
+      html += `<td>${row[key]}</td>`;
+    });
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+function loadSeasonLeaderboard() {
+  const gid = '0';
+  const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRL8lIZa71AtFnkuxWpspb2z_TuT-SkJFOcMkLTule0w1OHozYNiB-evwAnPMX2WaTLCJNe_BkvZQdj/pub?gid=${gid}&single=true&output=csv`;
+
+  Papa.parse(url, {
+    download: true,
+    header: true,
+    complete: function(results) {
+      renderSeasonLeaderboard(results.data);
+    }
+  });
+}
+
+function renderSeasonLeaderboard(data) {
+  const container = document.getElementById("season-leaderboard");
+  if (!data || data.length === 0) {
+    container.innerHTML = `<p>No season-long data available.</p>`;
+    return;
+  }
+
+  const columnsToShow = [
+    "Bettor",
+    "Bankroll",
+    "Bets Placed",
+    "Bets Won",
+    "Win %",
+    "Total Wagered",
+    "Payouts Earned"
+  ];
+
+  let html = `<table class="leaderboard-table"><thead><tr>`;
+  columnsToShow.forEach(header => {
+    html += `<th>${header}</th>`;
+  });
+  html += `</tr></thead><tbody>`;
+
+  data.forEach(row => {
+    html += `<tr>`;
+    columnsToShow.forEach(key => {
+      html += `<td>${row[key]}</td>`;
+    });
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+// === TOGGLE BUTTON LOGIC ===
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const view = btn.getAttribute('data-view');
+    document.getElementById("weekly-leaderboard").style.display = (view === 'weekly') ? 'block' : 'none';
+    document.getElementById("season-leaderboard").style.display = (view === 'season') ? 'block' : 'none';
+  });
+});
+
+// === LEADERBOARD INIT ===
+document.addEventListener("DOMContentLoaded", () => {
+  loadWeeklyLeaderboard();
+  loadSeasonLeaderboard();
+});
