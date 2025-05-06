@@ -1,9 +1,10 @@
 // === CONFIG ===
 const BANKROLL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
 const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
-const WEEK_GID_MAP = { 1: "0", 2: "202324890", 3: "441155668", 4: "1793741269" }; // Trimmed for space
+const WEEK_GID_MAP = { 1: "0", 2: "202324890", 3: "441155668", 4: "1793741269" };
 const DEV_OVERRIDE_WEEK = null;
 
+// === GET CURRENT WEEK ===
 function getCurrentNFLWeek() {
   if (DEV_OVERRIDE_WEEK !== null) return DEV_OVERRIDE_WEEK;
   const startDates = [
@@ -21,14 +22,15 @@ const weekNum = getCurrentNFLWeek();
 const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
 
+// === USER SETUP ===
 let currentUser = localStorage.getItem("bobbybets_user");
 if (!currentUser) {
-  currentUser = prompt("Enter your name");
-  if (currentUser) localStorage.setItem("bobbybets_user", currentUser);
+  alert("You must log in through the homepage.");
+  window.location.href = "index.html";
 }
-document.getElementById("user-name").textContent = currentUser || "Unknown";
+document.getElementById("user-name").textContent = currentUser;
 
-
+// === INITIAL STATE ===
 let betSlip = [];
 let wagerAmount = 50;
 
@@ -87,7 +89,7 @@ Papa.parse(BANKROLL_CSV, {
   }
 });
 
-// === BET SLIP ===
+// === BET SLIP FUNCTIONS ===
 function addToSlip(bet) {
   betSlip.push(bet);
   renderSlip();
@@ -131,30 +133,45 @@ function renderSlip() {
   payoutLine.textContent = `Total Wager: $${wagerAmount.toFixed(2)} | Potential Return: $${payout.toFixed(2)}`;
 }
 
+// === EVENT LISTENERS ===
 document.getElementById("wager-input").addEventListener("change", (e) => {
-  wagerAmount = parseFloat(e.target.value);
-  renderSlip();
+  const val = parseFloat(e.target.value);
+  if (!isNaN(val) && val > 0) {
+    wagerAmount = val;
+    renderSlip();
+  } else {
+    alert("Enter a valid wager amount.");
+    e.target.value = wagerAmount;
+  }
 });
+
 document.getElementById("reset-slip").addEventListener("click", () => {
   betSlip = [];
   renderSlip();
 });
+
 document.getElementById("submit-bet").addEventListener("click", () => {
   if (!currentUser || betSlip.length === 0) {
-    alert("Invalid bet or user");
+    alert("Invalid bet or missing user.");
     return;
   }
+
+  const wagerInput = parseFloat(document.getElementById("wager-input").value);
+  if (isNaN(wagerInput) || wagerInput <= 0) {
+    alert("Enter a valid wager amount.");
+    return;
+  }
+
+  wagerAmount = wagerInput;
 
   const timestamp = new Date().toLocaleString();
   const week = getCurrentNFLWeek();
 
+  const formattedBets = betSlip.map(bet => `${bet.type}:${bet.label}@${bet.odds}`).join(" | ");
+
   const payload = {
     bettor: currentUser,
-    bets: betSlip.map(bet => ({
-      type: bet.type,
-      selection: bet.label,
-      odds: Number(bet.odds)
-    })),
+    bets: formattedBets,
     wager: wagerAmount,
     timestamp,
     week
@@ -176,6 +193,6 @@ document.getElementById("submit-bet").addEventListener("click", () => {
   })
   .catch(error => {
     console.error("Error submitting bet:", error);
-    alert("Error submitting bet. Check console.");
+    alert("Error submitting bet. See console.");
   });
 });
