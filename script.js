@@ -169,13 +169,18 @@ document.getElementById("submit-bet").addEventListener("click", () => {
 
   const formattedBets = betSlip.map(bet => `${bet.type}:${bet.label}@${bet.odds}`).join(" | ");
 
-  const payload = {
-    bettor: currentUser,
-    bets: formattedBets,
-    wager: wagerAmount,
-    timestamp,
-    week
-  };
+const payload = {
+  bettor: currentUser,
+  bets: betSlip.map(b => ({
+    type: b.type,
+    selection: b.label,
+    odds: Number(b.odds)
+  })),
+  wager: wagerAmount,
+  timestamp,
+  week
+};
+
 
   console.log("Submitting Payload:", payload);
 
