@@ -242,20 +242,16 @@ body.bet-page {
 }
 
 #wager-input {
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 10px;
+  width: 80px;
+  padding: 10px;
+  border-radius: 8px;
   border: 1px solid #00aaff;
   background-color: #1a1a1a;
   color: #fff;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  text-align: center;
   box-shadow: 0 0 10px rgba(0, 170, 255, 0.1);
   transition: border 0.3s, box-shadow 0.3s;
-  box-sizing: border-box;
-  margin-top: 0.5rem;
-  margin-bottom: 1rem; /* Add this to push buttons down */
-}
-
 }
 
 #wager-input:focus {
@@ -263,6 +259,7 @@ body.bet-page {
   border-color: #C79A5B;
   box-shadow: 0 0 12px rgba(199, 154, 91, 0.4);
 }
+
 
 /* Hide default spinner buttons */
 #wager-input::-webkit-outer-spin-button,
@@ -437,4 +434,30 @@ body.bet-page {
 .adjust-button:hover {
   background-color: #008ecc;
   transform: scale(1.1);
+}
+.wager-wrapper {
+  margin-top: 1.5rem;
+}
+
+.wager-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.wager-btn {
+  padding: 10px 14px;
+  font-size: 1.2rem;
+  background-color: #222;
+  color: #00ccff;
+  border: 1px solid #00aaff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.wager-btn:hover {
+  background-color: #00aaff;
+  color: #fff;
 }
