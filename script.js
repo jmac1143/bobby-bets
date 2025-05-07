@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // === CONFIG ===
-const BANKROLL_CSV_RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
+const BANKROLL_CSV_RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
 const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
 const MAX_WAGER = 500;
 
@@ -41,7 +41,7 @@ function getCurrentNFLWeek() {
 let currentUser = localStorage.getItem("bobbybets_user");
 const weekNum = getCurrentNFLWeek();
 const gid = WEEK_GID_MAP[weekNum];
-const MATCHUP_CSV_RAW = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
+const MATCHUP_CSV_RAW = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
 const MATCHUP_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(MATCHUP_CSV_RAW)}`;
 const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(BANKROLL_CSV_RAW)}`;
 
@@ -216,14 +216,12 @@ function renderSlip() {
 }
 
 function loadWeeklyLeaderboard() {
-  const rawUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRL8lIZa71AtFnkuxWpspb2z_TuOzYN1B-evvAnPMX2WaTLCJNe_BkvZOdj/pub?gid=1039517288&single=true&output=csv";
+  const rawUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=1039517288&single=true&output=csv";
   const url = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(rawUrl)}`;
-  console.log("🔄 Fetching weekly leaderboard...");
   Papa.parse(url, {
     download: true,
     header: true,
     complete: function(results) {
-      console.log("✅ Weekly leaderboard loaded:", results.data);
       renderWeeklyLeaderboard(results.data);
     },
     error: function(err) {
@@ -233,14 +231,12 @@ function loadWeeklyLeaderboard() {
 }
 
 function loadSeasonLeaderboard() {
-  const rawUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRL8lIZa71AtFnkuxWpspb2z_TuOzYN1B-evvAnPMX2WaTLCJNe_BkvZOdj/pub?gid=399533112&single=true&output=csv";
+  const rawUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
   const url = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(rawUrl)}`;
-  console.log("🔄 Fetching season leaderboard...");
   Papa.parse(url, {
     download: true,
     header: true,
     complete: function(results) {
-      console.log("✅ Season leaderboard loaded:", results.data);
       renderSeasonLeaderboard(results.data);
     },
     error: function(err) {
