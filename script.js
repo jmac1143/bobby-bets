@@ -229,3 +229,11 @@ function renderSlip() {
 
   payoutLine.textContent = `Total Wager: $${wagerAmount.toFixed(2)} | Potential Return: $${payout.toFixed(2)}`;
 }
+function adjustWager(delta) {
+  const input = document.getElementById("wager-input");
+  let value = parseInt(input.value) || 0;
+  value = Math.min(Math.max(1, value + delta), MAX_WAGER); // Clamp value between 1 and MAX_WAGER
+  input.value = value;
+  wagerAmount = value;
+  renderSlip();
+}
