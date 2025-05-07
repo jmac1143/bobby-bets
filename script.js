@@ -1,7 +1,17 @@
+// === BOBBY BETS CORE SCRIPT (Production Version) ===
+console.log("SCRIPT LOADED ✅");
+
+document.addEventListener("DOMContentLoaded", () => {
+  const path = window.location.pathname;
+  if (path.includes("bet.html")) {
+    initBetPage();
+  }
+});
+
 // === CONFIG ===
-const SHEET_ID = "1Ub5Ey71JDvK21aFTVA3tzGDfMsGxDngVjpkbFXmnCm0";
 const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
 const MAX_WAGER = 500;
+const SHEET_BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=";
 
 const WEEK_GID_MAP = {
   1: "0",
@@ -23,194 +33,193 @@ const WEEK_GID_MAP = {
 const BANKROLL_GID = "399533112";
 const DEV_OVERRIDE_WEEK = null;
 
-// === UTILS ===
 function getCurrentNFLWeek() {
   if (DEV_OVERRIDE_WEEK !== null) return DEV_OVERRIDE_WEEK;
-  const seasonStart = new Date("2025-09-02T12:00:00-04:00");
+  const start = new Date("2025-09-02T12:00:00");
   const now = new Date();
-  const diff = Math.floor((now - seasonStart) / (7 * 24 * 60 * 60 * 1000));
-  return Math.min(14, Math.max(1, diff + 1));
+  const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+  const delta = now - start;
+  return Math.max(1, Math.min(14, Math.floor(delta / msPerWeek) + 1));
 }
 
-function getCSVUrl(gid) {
-  return `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
-}
-
-function fetchCSVThroughWorker(url) {
-  return fetch(`${SCRIPT_ENDPOINT}?url=${encodeURIComponent(url)}`)
-    .then(res => {
-      if (!res.ok) throw new Error(`Worker Proxy Error: ${res.status}`);
-      return res.text();
-    });
-}
-
-function parseCSV(text) {
-  return Papa.parse(text, { header: true }).data;
-}
-
-// === STATE ===
-let currentUser = null;
-let currentBankroll = 0;
-let currentWeek = getCurrentNFLWeek();
+let currentUser = localStorage.getItem("bobbybets_user");
 let betSlip = [];
-
-// === DOM READY ===
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("SCRIPT LOADED ✅");
-  const path = window.location.pathname;
-  console.log("Path:", path);
-
-  if (path.endsWith("bet.html")) {
-    initBetPage();
-  }
-});
+let wagerAmount = 50;
 
 // === INIT BET PAGE ===
 function initBetPage() {
-  console.log("Running bet page init...");
-
-  currentUser = localStorage.getItem("bobbybets_user");
   if (!currentUser) {
+    alert("You must log in through the homepage.");
     window.location.href = "index.html";
     return;
   }
 
   document.getElementById("user-name").textContent = currentUser;
 
-  // Load bankroll
-  const bankrollUrl = getCSVUrl(BANKROLL_GID);
-  fetchCSVThroughWorker(bankrollUrl)
-    .then(text => {
-      const rows = parseCSV(text);
-      const userRow = rows.find(r => r.Bettor?.trim().toLowerCase() === currentUser.trim().toLowerCase());
-      if (userRow) {
-        currentBankroll = parseFloat(userRow.Bankroll.replace(/[^0-9.-]+/g, ""));
-        document.getElementById("bankroll").textContent = `$${currentBankroll.toFixed(2)}`;
+  const weekNum = getCurrentNFLWeek();
+  const MATCHUP_CSV = `${SCRIPT_ENDPOINT}?url=${encodeURIComponent(SHEET_BASE_URL + WEEK_GID_MAP[weekNum] + "&single=true&output=csv")}`;
+  const BANKROLL_CSV = `${SCRIPT_ENDPOINT}?url=${encodeURIComponent(SHEET_BASE_URL + BANKROLL_GID + "&single=true&output=csv")}`;
+
+  // === Load Bankroll ===
+  Papa.parse(BANKROLL_CSV, {
+    download: true,
+    header: true,
+    complete: function (results) {
+      const data = results.data;
+      const userRow = data.find(row => row.Bettor?.trim().toLowerCase() === currentUser?.toLowerCase());
+      const bankroll = userRow ? parseFloat(userRow.Bankroll.replace(/[$,]/g, '')) || 0 : 0;
+      document.getElementById("bankroll").textContent = bankroll.toFixed(2);
+    }
+  });
+
+  // === Load Matchups ===
+  Papa.parse(MATCHUP_CSV, {
+    download: true,
+    header: true,
+    complete: function (results) {
+      const data = results.data;
+      const matchupsDiv = document.getElementById("matchups");
+      if (!matchupsDiv) return;
+
+      data.forEach((row, i) => {
+        if (!row["Team A"] || !row["Team B"]) return;
+
+        const teamA = row["Team A"].trim();
+        const teamB = row["Team B"].trim();
+        const spread = row["Spread"];
+        const mlA = Number(row["Moneyline A"]);
+        const mlB = Number(row["Moneyline B"]);
+        const spreadOddsA = Number(row["Spread Odds A"]);
+        const spreadOddsB = Number(row["Spread Odds B"]);
+        const overOdds = Number(row["Over Odds"]) || -110;
+        const underOdds = Number(row["Under Odds"]) || -110;
+        const totalPoints = row["Over/Under Line"] || "";
+
+        const createButton = (label, odds, type) => {
+          const btn = document.createElement("button");
+          btn.textContent = `${label} (${odds > 0 ? "+" + odds : odds})`;
+          btn.addEventListener("click", () => addToSlip({ label, odds, type }));
+          return btn;
+        };
+
+        const container = document.createElement("div");
+        container.innerHTML = `<h3>Game ${i + 1}: ${teamA} vs ${teamB}</h3>`;
+        container.appendChild(createButton(`${teamA} ${spread}`, spreadOddsA, "spread"));
+        container.appendChild(createButton(`${teamB} ${spread}`, spreadOddsB, "spread"));
+        container.appendChild(createButton(`${teamA} ML`, mlA, "ml"));
+        container.appendChild(createButton(`${teamB} ML`, mlB, "ml"));
+        container.appendChild(createButton(`OVER ${totalPoints}`, overOdds, "over"));
+        container.appendChild(createButton(`UNDER ${totalPoints}`, underOdds, "under"));
+
+        matchupsDiv.appendChild(container);
+      });
+    }
+  });
+
+  // Wager Input
+  const wagerInput = document.getElementById("wager-input");
+  if (wagerInput) {
+    wagerInput.addEventListener("change", (e) => {
+      const val = parseFloat(e.target.value);
+      if (!isNaN(val) && val > 0 && val <= MAX_WAGER) {
+        wagerAmount = val;
+        renderSlip();
       } else {
-        throw new Error("User not found in bankroll sheet");
+        alert(`Enter a valid wager amount (1 - ${MAX_WAGER})`);
+        e.target.value = wagerAmount;
       }
+    });
+  }
+
+  document.getElementById("reset-slip")?.addEventListener("click", () => {
+    betSlip = [];
+    renderSlip();
+  });
+
+  document.getElementById("submit-bet")?.addEventListener("click", () => {
+    if (!currentUser || betSlip.length === 0) {
+      alert("Invalid bet or missing user.");
+      return;
+    }
+
+    const wagerInputVal = parseFloat(document.getElementById("wager-input").value);
+    if (isNaN(wagerInputVal) || wagerInputVal <= 0 || wagerInputVal > MAX_WAGER) {
+      alert(`Please enter a valid wager up to $${MAX_WAGER}`);
+      return;
+    }
+
+    wagerAmount = wagerInputVal;
+    const timestamp = new Date().toLocaleString();
+    const week = getCurrentNFLWeek();
+
+    const payload = {
+      bettor: currentUser,
+      bets: betSlip.map(b => ({ type: b.type, selection: b.label, odds: Number(b.odds) })),
+      wager: wagerAmount,
+      timestamp,
+      week
+    };
+
+    fetch(SCRIPT_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
     })
-    .catch(err => {
-      console.error("Bankroll load error:", err);
-      alert("Failed to load bankroll");
-    });
-
-  // Load current week matchups
-  const gid = WEEK_GID_MAP[currentWeek];
-  const weekUrl = getCSVUrl(gid);
-  fetchCSVThroughWorker(weekUrl)
-    .then(text => {
-      const rows = parseCSV(text);
-      displayMatchups(rows);
-    })
-    .catch(err => {
-      console.error("Matchup load error:", err);
-      alert("Failed to load matchups");
-    });
-
-  // Wire up buttons
-  document.getElementById("reset-slip").addEventListener("click", resetSlip);
-  document.getElementById("submit-slip").addEventListener("click", submitSlip);
-}
-
-// === DISPLAY MATCHUPS ===
-function displayMatchups(games) {
-  const container = document.getElementById("matchups");
-  container.innerHTML = "";
-  games.forEach((g, i) => {
-    const div = document.createElement("div");
-    div.className = "matchup";
-
-    const label = document.createElement("div");
-    label.textContent = `${g.TeamA} vs ${g.TeamB}`;
-    div.appendChild(label);
-
-    ["SpreadA", "SpreadB", "Over", "Under"].forEach(key => {
-      const btn = document.createElement("button");
-      const val = g[key];
-      if (!val) return;
-
-      btn.textContent = `${key.includes("Spread") ? (key === "SpreadA" ? g.TeamA : g.TeamB) : key.toUpperCase()} ${val}`;
-      btn.addEventListener("click", () => addToSlip({
-        type: key.includes("Spread") ? "Spread" : "Total",
-        selection: btn.textContent,
-        odds: -110
-      }));
-      div.appendChild(btn);
-    });
-
-    container.appendChild(div);
+      .then(res => res.text())
+      .then(() => {
+        alert("Bet submitted!");
+        betSlip = [];
+        renderSlip();
+      })
+      .catch(error => {
+        console.error("Error submitting bet:", error);
+        alert("Error submitting bet. See console.");
+      });
   });
 }
 
-// === SLIP ACTIONS ===
 function addToSlip(bet) {
   betSlip.push(bet);
   renderSlip();
 }
 
-function resetSlip() {
-  betSlip = [];
+function removeFromSlip(index) {
+  betSlip.splice(index, 1);
   renderSlip();
 }
 
 function renderSlip() {
-  const slip = document.getElementById("bet-slip-contents");
-  slip.innerHTML = "";
+  const list = document.getElementById("slip-items");
+  const parlayLine = document.getElementById("parlay-line");
+  const payoutLine = document.getElementById("payout-line");
 
-  betSlip.forEach((b, i) => {
-    const row = document.createElement("div");
-    row.className = "slip-row";
-    row.textContent = `${b.type}: ${b.selection} (${b.odds})`;
+  if (!list || !parlayLine || !payoutLine) return;
 
-    const x = document.createElement("button");
-    x.textContent = "❌";
-    x.onclick = () => {
-      betSlip.splice(i, 1);
-      renderSlip();
-    };
-    row.appendChild(x);
-    slip.appendChild(row);
+  list.innerHTML = "";
+  betSlip.forEach((bet, index) => {
+    list.innerHTML += `<li>${bet.label} @ ${bet.odds > 0 ? "+" + bet.odds : bet.odds} <button onclick="removeFromSlip(${index})">X</button></li>`;
   });
-}
 
-// === SUBMIT SLIP ===
-function submitSlip() {
-  const wager = parseFloat(document.getElementById("wager").value);
-  if (isNaN(wager) || wager <= 0 || wager > currentBankroll || wager > MAX_WAGER) {
-    alert("Invalid wager amount");
-    return;
-  }
   if (betSlip.length === 0) {
-    alert("No bets on the slip");
+    parlayLine.textContent = "";
+    payoutLine.textContent = "";
     return;
   }
 
-  const payload = {
-    bettor: currentUser,
-    week: currentWeek,
-    timestamp: new Date().toISOString(),
-    wager: wager,
-    bets: betSlip
-  };
+  let decimalOdds = betSlip.reduce((acc, bet) => {
+    const odds = bet.odds;
+    const decimal = odds > 0 ? (odds / 100 + 1) : (100 / Math.abs(odds) + 1);
+    return acc * decimal;
+  }, 1);
 
-  fetch(SCRIPT_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  })
-    .then(res => res.text())
-    .then(txt => {
-      if (txt.includes("Success")) {
-        alert("Bet submitted!");
-        resetSlip();
-        location.reload();
-      } else {
-        alert("Submission failed: " + txt);
-      }
-    })
-    .catch(err => {
-      console.error("Submit error:", err);
-      alert("Error submitting bet");
-    });
+  const parlayAmerican = decimalOdds >= 2
+    ? `+${Math.round((decimalOdds - 1) * 100)}`
+    : `-${Math.round(100 / (decimalOdds - 1))}`;
+  const payout = wagerAmount * decimalOdds;
+
+  parlayLine.innerHTML = betSlip.length === 1
+    ? `<em>Single Bet</em><br>Odds: ${betSlip[0].odds} (${decimalOdds.toFixed(2)})`
+    : `<em>${betSlip.length}-Leg Parlay</em><br>Combined Odds: ${parlayAmerican} (${decimalOdds.toFixed(2)})`;
+
+  payoutLine.textContent = `Total Wager: $${wagerAmount.toFixed(2)} | Potential Return: $${payout.toFixed(2)}`;
 }
