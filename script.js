@@ -23,8 +23,9 @@ const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV_RAW = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
 const BANKROLL_CSV_RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Teu6I1G1KiPnaqPISS6BhopZzxgYqD9TS-W7Avn8196Wlt6VOwkJcwdRKkU3yOD7Ez0JIfi/pub?gid=399533112&single=true&output=csv";
 
-const MATCHUP_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(MATCHUP_CSV_RAW)}`;
-const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(BANKROLL_CSV_RAW)}`;
+const MATCHUP_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${MATCHUP_CSV_RAW}`;
+const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${BANKROLL_CSV_RAW}`;
+
 const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
 const MAX_WAGER = 500;
 
