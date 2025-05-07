@@ -24,11 +24,15 @@ const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
 
 let currentUser = localStorage.getItem("bobbybets_user");
-if (!currentUser) {
-  alert("You must log in through the homepage.");
-  window.location.href = "index.html";
+
+if (window.location.pathname.includes("bet.html")) {
+  if (!currentUser) {
+    alert("You must log in through the homepage.");
+    window.location.href = "index.html";
+  } else {
+    document.getElementById("user-name").textContent = currentUser;
+  }
 }
-document.getElementById("user-name").textContent = currentUser;
 
 let betSlip = [];
 let wagerAmount = 50;
