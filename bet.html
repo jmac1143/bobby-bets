@@ -13,10 +13,33 @@
   <hr />
 
   <!-- Matchups will be dynamically inserted here -->
-  <div id="matchups"></div>
+  
+<!-- Matchups Container -->
+<div id="matchups" class="matchups-container"></div>
+
 
   <!-- Bet Slip Section -->
-  <div id="bet-slip" class="bet-slip">
+  
+<!-- Bet Slip Section -->
+<div id="bet-slip" class="bet-slip">
+  <h3>Bet Slip</h3>
+  <ul id="slip-items" class="bet-list"></ul>
+
+  <p id="parlay-line" class="odds-info"></p>
+
+  <div class="wager-controls">
+    <label for="wager-input">Wager:</label>
+    <input id="wager-input" type="number" value="50" min="1" step="1" />
+  </div>
+
+  <div class="slip-buttons">
+    <button id="reset-slip" class="slip-btn secondary">Reset</button>
+    <button id="submit-bet" class="slip-btn primary">Submit Bet</button>
+  </div>
+
+  <p id="payout-line" class="odds-info"></p>
+</div>
+
     <h3>Bet Slip</h3>
     <ul id="slip-items"></ul>
 
