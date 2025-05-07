@@ -1,4 +1,3 @@
-
 // === BOBBY BETS CORE SCRIPT (Pre-Scoreboard) ===
 console.log("SCRIPT LOADED ✅");
 
@@ -15,17 +14,23 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // === CONFIG ===
+const WEEK_GID_MAP = { 1: "0", 2: "202324890", 3: "441155668", 4: "1793741269" };
+const DEV_OVERRIDE_WEEK = null;
+
+const weekNum = getCurrentNFLWeek();
+const gid = WEEK_GID_MAP[weekNum];
+
+const MATCHUP_CSV_RAW = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
 const BANKROLL_CSV_RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Teu6I1G1KiPnaqPISS6BhopZzxgYqD9TS-W7Avn8196Wlt6VOwkJcwdRKkU3yOD7Ez0JIfi/pub?gid=399533112&single=true&output=csv";
 
 const MATCHUP_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(MATCHUP_CSV_RAW)}`;
 const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(BANKROLL_CSV_RAW)}`;
-
 const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
 const MAX_WAGER = 500;
 
-
-const WEEK_GID_MAP = { 1: "0", 2: "202324890", 3: "441155668", 4: "1793741269" };
-const DEV_OVERRIDE_WEEK = null;
+let currentUser = localStorage.getItem("bobbybets_user");
+let betSlip = [];
+let wagerAmount = 50;
 
 function getCurrentNFLWeek() {
   if (DEV_OVERRIDE_WEEK !== null) return DEV_OVERRIDE_WEEK;
@@ -40,17 +45,6 @@ function getCurrentNFLWeek() {
   return 1;
 }
 
-let currentUser = localStorage.getItem("bobbybets_user");
-const weekNum = getCurrentNFLWeek();
-const gid = WEEK_GID_MAP[weekNum];
-const MATCHUP_CSV_RAW = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
-const MATCHUP_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${MATCHUP_CSV_RAW}`;
-const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${BANKROLL_CSV_RAW}`;
-
-let betSlip = [];
-let wagerAmount = 50;
-
-// === INIT BET PAGE ===
 function initBetPage() {
   if (!currentUser) {
     alert("You must log in through the homepage.");
@@ -130,55 +124,49 @@ function initBetPage() {
     });
   }
 
-  const resetBtn = document.getElementById("reset-slip");
-  if (resetBtn) {
-    resetBtn.addEventListener("click", () => {
-      betSlip = [];
-      renderSlip();
-    });
-  }
+  document.getElementById("reset-slip")?.addEventListener("click", () => {
+    betSlip = [];
+    renderSlip();
+  });
 
-  const submitBtn = document.getElementById("submit-bet");
-  if (submitBtn) {
-    submitBtn.addEventListener("click", () => {
-      if (!currentUser || betSlip.length === 0) {
-        alert("Invalid bet or missing user.");
-        return;
-      }
+  document.getElementById("submit-bet")?.addEventListener("click", () => {
+    if (!currentUser || betSlip.length === 0) {
+      alert("Invalid bet or missing user.");
+      return;
+    }
 
-      const wagerInputVal = parseFloat(document.getElementById("wager-input").value);
-      if (isNaN(wagerInputVal) || wagerInputVal <= 0 || wagerInputVal > MAX_WAGER) {
-        alert(`Please enter a valid wager up to $${MAX_WAGER}`);
-        return;
-      }
+    const wagerInputVal = parseFloat(document.getElementById("wager-input").value);
+    if (isNaN(wagerInputVal) || wagerInputVal <= 0 || wagerInputVal > MAX_WAGER) {
+      alert(`Please enter a valid wager up to $${MAX_WAGER}`);
+      return;
+    }
 
-      wagerAmount = wagerInputVal;
-      const timestamp = new Date().toLocaleString();
-      const payload = {
-        bettor: currentUser,
-        bets: betSlip.map(b => ({ type: b.type, selection: b.label, odds: Number(b.odds) })),
-        wager: wagerAmount,
-        timestamp,
-        week: getCurrentNFLWeek()
-      };
+    wagerAmount = wagerInputVal;
+    const timestamp = new Date().toLocaleString();
+    const payload = {
+      bettor: currentUser,
+      bets: betSlip.map(b => ({ type: b.type, selection: b.label, odds: Number(b.odds) })),
+      wager: wagerAmount,
+      timestamp,
+      week: weekNum
+    };
 
-      fetch(SCRIPT_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+    fetch(SCRIPT_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.text())
+      .then(() => {
+        alert("Bet submitted!");
+        betSlip = [];
+        renderSlip();
       })
-        .then(res => res.text())
-        .then(response => {
-          alert("Bet submitted!");
-          betSlip = [];
-          renderSlip();
-        })
-        .catch(error => {
-          console.error("Error submitting bet:", error);
-          alert("Error submitting bet. See console.");
-        });
-    });
-  }
+      .catch(error => {
+        console.error("Error submitting bet:", error);
+        alert("Error submitting bet. See console.");
+      });
+  });
 }
 
 function addToSlip(bet) {
