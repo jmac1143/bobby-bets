@@ -253,6 +253,9 @@ body.bet-page {
   transition: border 0.3s, box-shadow 0.3s;
   box-sizing: border-box;
   margin-top: 0.5rem;
+  margin-bottom: 1rem; /* Add this to push buttons down */
+}
+
 }
 
 #wager-input:focus {
