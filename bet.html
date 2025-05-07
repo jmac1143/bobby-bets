@@ -4,34 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Bobby Bets - Bet Page</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body class="bet-page">
-  <div class="header-bar">
+  <header class="header-bar">
     <h1>Bobby Bets Sportsbook</h1>
-    <div class="user-info">
-      <p><strong>Welcome,</strong> <span id="username">Unknown</span></p>
-      <p><strong>Bankroll:</strong> $<span id="bankroll">0.00</span></p>
-    </div>
-  </div>
+    <p><strong>Welcome,</strong> <span id="username">Unknown</span></p>
+    <p><strong>Bankroll:</strong> $<span id="bankroll">0.00</span></p>
+  </header>
 
-  <hr class="section-divider" />
+  <img src="acrisure-stadium.png" alt="Acrisure Stadium" style="width: 100%; max-height: 140px; object-fit: cover; border-top: 1px solid #333; border-bottom: 1px solid #333;">
 
-  <div id="matchups-container" class="matchups-container">
-    <!-- Matchups will be dynamically inserted here -->
-  </div>
+  <main id="matchups-container" class="matchups-container">
+    <!-- Matchups will be injected here by script.js -->
+  </main>
 
-  <div class="bet-slip-wrapper">
+  <section class="bet-slip-wrapper">
     <div class="bet-slip">
       <h2>Bet Slip</h2>
       <label for="wagerInput">Wager:</label>
-      <input type="number" id="wagerInput" value="50" min="1" />
+      <input type="number" id="wagerInput" value="50" />
       <div class="bet-slip-buttons">
-        <button id="resetSlip" class="reset-button">Reset</button>
-        <button id="submitBet" class="submit-button">Submit Bet</button>
+        <button class="reset-button" id="resetSlip">Reset</button>
+        <button class="submit-button" id="submitBet">Submit Bet</button>
       </div>
     </div>
-  </div>
+  </section>
 
   <script src="script.js"></script>
 </body>
