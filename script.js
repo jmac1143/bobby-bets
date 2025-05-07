@@ -242,7 +242,7 @@ function renderWeeklyLeaderboard(data) {
 }
 
 function loadSeasonLeaderboard() {
-  const gid = '0';
+const gid = '399533112';
   const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRL8lIZa71AtFnkuxWpspb2z_TuT-SkJFOcMkLTule0w1OHozYNiB-evwAnPMX2WaTLCJNe_BkvZQdj/pub?gid=${gid}&single=true&output=csv`;
 
   Papa.parse(url, {
