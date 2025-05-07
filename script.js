@@ -59,8 +59,8 @@ const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV_RAW = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?gid=${gid}&single=true&output=csv`;
 const BANKROLL_CSV_RAW = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?gid=399533112&single=true&output=csv`;
 
-const MATCHUP_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(MATCHUP_CSV_RAW)}`;
-const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(BANKROLL_CSV_RAW)}`;
+const MATCHUP_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${MATCHUP_CSV_RAW}`;
+const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${BANKROLL_CSV_RAW}`;
 
 let currentUser = localStorage.getItem("bobbybets_user");
 let betSlip = [];
