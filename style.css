@@ -1,181 +1,139 @@
-/* === GENERAL STYLES === */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #0F1C22;
-  color: white;
   margin: 0;
-  padding: 20px;
-  line-height: 1.6;
+  padding: 0;
+  background: url('acrisure-stadium.webp') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+  animation: fadeIn 1s ease-in-out;
+  min-height: 100vh;
+  position: relative;
 }
 
-/* === LOGIN PAGE === */
-.login-container {
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 0;
+}
+
+.hero-banner {
   text-align: center;
-  padding-top: 50px;
+  padding: 3rem 1rem 1rem;
+  position: relative;
+  z-index: 1;
 }
 
-.login-container h1 {
-  font-size: 2rem;
-  margin-bottom: 10px;
+.hero-banner h1 {
+  font-size: 3rem;
+  color: #C79A5B;
+  margin: 0;
+  text-shadow: 0 0 8px #000;
 }
 
-.login-container p {
-  font-size: 1rem;
+.tagline {
+  font-size: 1.1rem;
+  color: #ddd;
+  text-shadow: 0 0 6px #000;
+}
+
+.login-panel {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 700px;
+  margin: 2rem auto;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 25px rgba(0,0,0,0.5);
+  position: relative;
+  z-index: 1;
+}
+
+.login-instructions {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  text-align: center;
   color: #ccc;
-  margin-bottom: 30px;
 }
 
 #login-buttons {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
-.login-btn,
-button {
+.login-btn {
   padding: 12px 20px;
-  margin: 5px;
-  font-size: 16px;
+  font-size: 1rem;
+  border-radius: 8px;
   background-color: #1f2a36;
   color: #fff;
   border: 1px solid #333;
-  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  min-width: 100px;
 }
 
-.login-btn:hover,
-button:hover {
+.login-btn:hover {
   background-color: #00aaff;
   color: #fff;
+  transform: scale(1.05);
 }
 
-/* === MAIN HEADINGS === */
-h1 {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-h2 {
-  font-size: 1.25rem;
-  margin-bottom: 5px;
-}
-
-h3 {
-  font-size: 1.1rem;
-  margin: 1rem 0 0.5rem;
-  color: #C79A5B;
-}
-
-/* === MATCHUPS CONTAINER === */
-#matchups > div {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-}
-
-#matchups button {
-  display: inline-block;
-  margin: 6px;
-  background-color: #222;
-  border: 1px solid #444;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-weight: bold;
-  font-size: 0.95rem;
-  color: #eee;
-}
-
-#matchups button:hover {
-  background-color: #007acc;
-  border-color: #00aaff;
-}
-
-/* === BET SLIP === */
-.bet-slip {
-  background: #1c1c1c;
-  border: 1px solid #333;
-  border-radius: 10px;
-  padding: 20px;
-  margin-top: 30px;
-  max-width: 600px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-}
-
-.bet-slip h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
-  color: #fff;
-}
-
-.bet-slip ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 10px;
-}
-
-.bet-slip li {
-  padding: 8px 12px;
-  background-color: #2a2a2a;
-  margin-bottom: 6px;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
+.pin-modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(8px);
+  justify-content: center;
   align-items: center;
+  z-index: 10;
 }
 
-.bet-slip li button {
-  background: none;
+.pin-modal-content {
+  background: #1f1f1f;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #444;
+  box-shadow: 0 0 20px rgba(0,0,0,0.6);
+  text-align: center;
+}
+
+.pin-modal-content input {
+  padding: 10px;
   border: none;
-  color: #ff4d4d;
-  font-weight: bold;
+  border-radius: 6px;
+  margin: 1rem 0;
+  width: 150px;
+  font-size: 1rem;
+}
+
+.pin-modal-content button {
+  margin: 0.25rem;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
   font-size: 1rem;
   cursor: pointer;
 }
 
-#parlay-line,
-#payout-line {
-  font-style: italic;
-  font-size: 0.95rem;
-  color: #ccc;
-}
-
-#wager-input {
-  width: 100px;
-  padding: 6px;
-  border: 1px solid #444;
-  background: #111;
-  color: white;
-  border-radius: 6px;
-  margin-left: 5px;
-}
-
-.bet-slip button {
-  margin-top: 8px;
-  padding: 10px 16px;
-  font-size: 1rem;
-  border-radius: 6px;
-  border: none;
-}
-
-#reset-slip {
-  background-color: #555;
-  margin-right: 10px;
-}
-
-#submit-bet {
+#submitPin {
   background-color: #00aaff;
+  color: white;
 }
 
-#reset-slip:hover {
+.cancel-btn {
   background-color: #777;
+  color: white;
 }
 
-#submit-bet:hover {
-  background-color: #007acc;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
