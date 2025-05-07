@@ -2,39 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Bobby Bets - Bet Page</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <h1>Bobby Bets Sportsbook</h1>
-  <h2>Welcome, <span id="user-name">Unknown</span></h2>
-  <p><strong>Bankroll:</strong> $<span id="bankroll">0.00</span></p>
-  <hr />
-
-  <!-- Matchups will be dynamically inserted here -->
-  <div id="matchups"></div>
-
-  <!-- Bet Slip Section -->
-  <div id="bet-slip" class="bet-slip">
-    <h3>Bet Slip</h3>
-    <ul id="slip-items"></ul>
-
-    <p id="parlay-line" style="margin-top: 5px; font-style: italic;"></p>
-
-    <label for="wager-input">Wager: $</label>
-    <input id="wager-input" type="number" value="50" min="1" step="1" />
-
-    <div style="margin-top: 10px;">
-      <button id="reset-slip">Reset Slip</button>
-      <button id="submit-bet">Submit Bet</button>
+<body class="bet-page">
+  <div class="header-bar">
+    <h1>Bobby Bets Sportsbook</h1>
+    <div class="user-info">
+      <p><strong>Welcome,</strong> <span id="username">Unknown</span></p>
+      <p><strong>Bankroll:</strong> $<span id="bankroll">0.00</span></p>
     </div>
-
-    <p id="payout-line" style="margin-top: 10px;"></p>
   </div>
 
-  <!-- External Dependencies + Main Script -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <hr class="section-divider" />
+
+  <div id="matchups-container" class="matchups-container">
+    <!-- Matchups will be dynamically inserted here -->
+  </div>
+
+  <div class="bet-slip-wrapper">
+    <div class="bet-slip">
+      <h2>Bet Slip</h2>
+      <label for="wagerInput">Wager:</label>
+      <input type="number" id="wagerInput" value="50" min="1" />
+      <div class="bet-slip-buttons">
+        <button id="resetSlip" class="reset-button">Reset</button>
+        <button id="submitBet" class="submit-button">Submit Bet</button>
+      </div>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
