@@ -1,19 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Bobby Bets - Login</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-</head>
 <body>
   <div class="login-container">
     <h1>Welcome to Bobby Bets</h1>
     <p class="login-instructions">Select your profile to begin betting:</p>
-    <div id="login-buttons" class="user-buttons"></div>
+    <div class="user-buttons">
+      <button class="login-btn" data-user="Justin">Justin</button>
+      <button class="login-btn" data-user="Ryan">Ryan</button>
+      <button class="login-btn" data-user="JB">JB</button>
+      <button class="login-btn" data-user="Fyola">Fyola</button>
+      <button class="login-btn" data-user="AK">AK</button>
+      <button class="login-btn" data-user="Seth">Seth</button>
+      <button class="login-btn" data-user="Jimmy">Jimmy</button>
+      <button class="login-btn" data-user="Evan">Evan</button>
+      <button class="login-btn" data-user="Jonathan">Jonathan</button>
+      <button class="login-btn" data-user="Juice">Juice</button>
+      <button class="login-btn" data-user="Timmy">Timmy</button>
+      <button class="login-btn" data-user="Kyle">Kyle</button>
+    </div>
   </div>
 
-  <!-- PIN Entry Modal -->
+  <!-- PIN Modal -->
   <div class="pin-modal" id="pinModal">
     <div class="pin-modal-content">
       <h2>Enter PIN</h2>
@@ -24,4 +29,5 @@
     </div>
   </div>
 
-  
+  <script src="script.js"></script>
+</body>
