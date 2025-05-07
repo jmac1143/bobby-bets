@@ -1,3 +1,21 @@
+console.log("SCRIPT LOADED ✅");
+
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM Ready 🟢");
+
+  const path = window.location.pathname;
+  console.log("Path:", path);
+
+  if (path.includes("bet.html")) {
+    console.log("Running bet page init...");
+    initBetPage();
+  }
+
+  loadWeeklyLeaderboard();
+  loadSeasonLeaderboard();
+  setupLeaderboardToggle();
+});
+
 // === CONFIG ===
 const BANKROLL_CSV_RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GIKiPnqcPlS5G8hopZzxgYqD9TS-W7Avn8I96WIt6VOwXJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
 const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
