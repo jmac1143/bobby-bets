@@ -24,8 +24,15 @@
 
       <p id="parlay-line" class="parlay-line"></p>
 
-      <label for="wager-input">Wager: $</label>
-      <input id="wager-input" type="number" value="50" min="1" step="1" />
+      <div class="wager-wrapper">
+  <label for="wager-input">Wager: $</label>
+  <div class="wager-control">
+    <button class="wager-btn" onclick="adjustWager(-10)">–</button>
+    <input id="wager-input" type="text" value="50" />
+    <button class="wager-btn" onclick="adjustWager(10)">+</button>
+  </div>
+</div>
+
 
       <div class="bet-slip-buttons">
         <button id="reset-slip" class="reset-button">Reset Slip</button>
