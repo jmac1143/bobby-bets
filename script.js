@@ -44,9 +44,10 @@ const weekNum = getCurrentNFLWeek();
 const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV_RAW = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
 
-const MATCHUP_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(MATCHUP_CSV_RAW)}`;
-const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(BANKROLL_CSV_RAW)}`;
-const WEEKLY_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(WEEKLY_CSV_RAW)}`;
+const MATCHUP_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${MATCHUP_CSV_RAW}`;
+const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${BANKROLL_CSV_RAW}`;
+const WEEKLY_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${WEEKLY_CSV_RAW}`;
+
 
 let betSlip = [];
 let wagerAmount = 50;
