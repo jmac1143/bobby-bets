@@ -288,3 +288,61 @@ body.bet-page {
     width: 90%;
   }
 }
+.matchup-card {
+  background-color: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 16px;
+  box-shadow: 0 0 12px rgba(0, 170, 255, 0.25);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: #fff;
+  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.matchup-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 20px rgba(0, 170, 255, 0.45);
+  background: radial-gradient(circle at center, #1e1e1e 0%, #1b1b1b 100%);
+}
+
+.matchup-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #C79A5B;
+}
+
+.bet-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.bet-btn {
+  background-color: #222;
+  border: 1px solid #00aaff;
+  color: #00ccff;
+  font-weight: bold;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  min-width: 110px;
+}
+
+.bet-btn:hover {
+  background-color: #00aaff;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.bet-btn[data-selected="true"] {
+  background-color: #C79A5B;
+  color: #000;
+  border-color: #C79A5B;
+}
