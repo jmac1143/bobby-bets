@@ -1,4 +1,4 @@
-
+// === BOBBY BETS FULL SCRIPT ===
 console.log("SCRIPT LOADED ✅");
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // === CONFIG ===
 const BANKROLL_CSV_RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
+const WEEKLY_CSV_RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=1039517288&single=true&output=csv";
 const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
 const MAX_WAGER = 500;
 
@@ -42,13 +43,15 @@ let currentUser = localStorage.getItem("bobbybets_user");
 const weekNum = getCurrentNFLWeek();
 const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV_RAW = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
+
 const MATCHUP_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(MATCHUP_CSV_RAW)}`;
 const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(BANKROLL_CSV_RAW)}`;
+const WEEKLY_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(WEEKLY_CSV_RAW)}`;
 
 let betSlip = [];
 let wagerAmount = 50;
 
-// === BET PAGE LOGIC ===
+// === INIT BET PAGE ===
 function initBetPage() {
   if (!currentUser) {
     alert("You must log in through the homepage.");
@@ -179,13 +182,21 @@ function initBetPage() {
   }
 }
 
-function addToSlip(bet) { betSlip.push(bet); renderSlip(); }
-function removeFromSlip(index) { betSlip.splice(index, 1); renderSlip(); }
+function addToSlip(bet) {
+  betSlip.push(bet);
+  renderSlip();
+}
+
+function removeFromSlip(index) {
+  betSlip.splice(index, 1);
+  renderSlip();
+}
 
 function renderSlip() {
   const list = document.getElementById("slip-items");
   const parlayLine = document.getElementById("parlay-line");
   const payoutLine = document.getElementById("payout-line");
+
   if (!list || !parlayLine || !payoutLine) return;
 
   list.innerHTML = "";
@@ -215,32 +226,27 @@ function renderSlip() {
   payoutLine.textContent = `Total Wager: $${wagerAmount.toFixed(2)} | Potential Return: $${payout.toFixed(2)}`;
 }
 
+// === LEADERBOARDS ===
 function loadWeeklyLeaderboard() {
-  const rawUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=1039517288&single=true&output=csv";
-  const url = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(rawUrl)}`;
-  Papa.parse(url, {
+  console.log("📊 Fetching weekly leaderboard...");
+  Papa.parse(WEEKLY_CSV, {
     download: true,
     header: true,
-    complete: function(results) {
+    complete: function (results) {
+      console.log("✅ Weekly leaderboard loaded:", results.data);
       renderWeeklyLeaderboard(results.data);
-    },
-    error: function(err) {
-      console.error("❌ Weekly leaderboard failed:", err);
     }
   });
 }
 
 function loadSeasonLeaderboard() {
-  const rawUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
-  const url = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(rawUrl)}`;
-  Papa.parse(url, {
+  console.log("📊 Fetching season leaderboard...");
+  Papa.parse(BANKROLL_CSV, {
     download: true,
     header: true,
-    complete: function(results) {
+    complete: function (results) {
+      console.log("✅ Season leaderboard loaded:", results.data);
       renderSeasonLeaderboard(results.data);
-    },
-    error: function(err) {
-      console.error("❌ Season leaderboard failed:", err);
     }
   });
 }
@@ -270,11 +276,13 @@ function generateTableHTML(data) {
   const headers = Object.keys(data[0]);
   headers.forEach(header => html += `<th>${header}</th>`);
   html += `</tr></thead><tbody>`;
+
   data.forEach(row => {
     html += `<tr>`;
     headers.forEach(key => html += `<td>${row[key]}</td>`);
     html += `</tr>`;
   });
+
   html += `</tbody></table>`;
   return html;
 }
