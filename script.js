@@ -1,40 +1,12 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const buttons = document.querySelectorAll(".login-btn");
-  const pins = {
-    "Justin": "4732", "Ryan": "8042", "JB": "6204", "Fyola": "7293",
-    "AK": "3471", "Seth": "1579", "Jimmy": "4590", "Evan": "9185",
-    "Jonathan": "5710", "Juice": "8127", "Timmy": "2937", "Kyle": "6935"
-  };
-
-  let selectedUser = "";
-
-  buttons.forEach(button => {
-    button.addEventListener("click", () => {
-      selectedUser = button.getAttribute("data-user");
-      document.getElementById("selectedUser").textContent = `Selected: ${selectedUser}`;
-      document.getElementById("pinModal").style.display = "flex";
-    });
-  });
-
-  document.getElementById("submitPin").addEventListener("click", () => {
-    const enteredPin = document.getElementById("pinInput").value;
-    if (enteredPin === pins[selectedUser]) {
-      localStorage.setItem("bobbybets_user", selectedUser);
-      window.location.href = "bet.html";
-    } else {
-      alert("Incorrect PIN. Try again.");
-    }
-  });
-});
-
-function closePinModal() {
-  document.getElementById("pinModal").style.display = "none";
-}
-
 // === BOBBY BETS CORE SCRIPT (Production Version) ===
 console.log("SCRIPT LOADED ✅");
 
-
+document.addEventListener("DOMContentLoaded", () => {
+  const path = window.location.pathname;
+  if (path.includes("bet.html")) {
+    initBetPage();
+  }
+});
 
 // === CONFIG ===
 const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
