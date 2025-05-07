@@ -1,3 +1,4 @@
+
 // === BOBBY BETS CORE SCRIPT (Pre-Scoreboard) ===
 console.log("SCRIPT LOADED ✅");
 
@@ -21,19 +22,28 @@ const WEEK_GID_MAP = {
   1: "0",
   2: "202324890",
   3: "441155668",
-  4: "1793741269"
+  4: "1793741269",
+  5: "1409141359",
+  6: "1172649228",
+  7: "1722653524",
+  8: "2095287272",
+  9: "412313481",
+  10: "1159601837",
+  11: "1864571679",
+  12: "480970597",
+  13: "285082386",
+  14: "858725653"
 };
-
 const DEV_OVERRIDE_WEEK = null;
 
 function getCurrentNFLWeek() {
   if (DEV_OVERRIDE_WEEK !== null) return DEV_OVERRIDE_WEEK;
   const startDates = [
-    "2025-09-02T12:00:00",
-    "2025-09-09T12:00:00",
-    "2025-09-16T12:00:00",
-    "2025-09-23T12:00:00",
-    "2025-09-30T12:00:00"
+    "2025-09-02T12:00:00", "2025-09-09T12:00:00", "2025-09-16T12:00:00",
+    "2025-09-23T12:00:00", "2025-09-30T12:00:00", "2025-10-07T12:00:00",
+    "2025-10-14T12:00:00", "2025-10-21T12:00:00", "2025-10-28T12:00:00",
+    "2025-11-04T12:00:00", "2025-11-11T12:00:00", "2025-11-18T12:00:00",
+    "2025-11-25T12:00:00", "2025-12-02T12:00:00"
   ];
   const now = new Date();
   for (let i = startDates.length - 1; i >= 0; i--) {
@@ -42,19 +52,19 @@ function getCurrentNFLWeek() {
   return 1;
 }
 
-let currentUser = localStorage.getItem("bobbybets_user");
+const SHEET_ID = "1Ub5Ey71JDvK21aFTVA3tzGDfMsGxDngVjpkbFXmnCm0";
 const weekNum = getCurrentNFLWeek();
 const gid = WEEK_GID_MAP[weekNum];
 
-const MATCHUP_CSV_RAW = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
-const BANKROLL_CSV_RAW = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv`;
+const MATCHUP_CSV_RAW = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?gid=${gid}&single=true&output=csv`;
+const BANKROLL_CSV_RAW = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?gid=399533112&single=true&output=csv`;
 
 const MATCHUP_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(MATCHUP_CSV_RAW)}`;
 const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${encodeURIComponent(BANKROLL_CSV_RAW)}`;
 
+let currentUser = localStorage.getItem("bobbybets_user");
 let betSlip = [];
 let wagerAmount = 50;
-
 // === INIT BET PAGE ===
 function initBetPage() {
   if (!currentUser) {
