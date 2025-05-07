@@ -1,3 +1,4 @@
+
 // === BOBBY BETS CORE SCRIPT (Production Version) ===
 console.log("SCRIPT LOADED ✅");
 
@@ -68,7 +69,7 @@ function initBetPage() {
       const data = results.data;
       const userRow = data.find(row => row.Bettor?.trim().toLowerCase() === currentUser?.toLowerCase());
       const bankroll = userRow ? parseFloat(userRow.Bankroll.replace(/[$,]/g, '')) || 0 : 0;
-      document.getElementById("bankroll").textContent = bankroll.toFixed(2);
+      document.getElementById("bankroll").textContent = bankroll.toLocaleString(undefined, { minimumFractionDigits: 2 });
     }
   });
 
@@ -97,26 +98,31 @@ function initBetPage() {
 
         const createButton = (label, odds, type) => {
           const btn = document.createElement("button");
+          btn.className = "bet-btn";
           btn.textContent = `${label} (${odds > 0 ? "+" + odds : odds})`;
           btn.addEventListener("click", () => addToSlip({ label, odds, type }));
           return btn;
         };
 
         const container = document.createElement("div");
+        container.className = "matchup-card";
         container.innerHTML = `<h3>Game ${i + 1}: ${teamA} vs ${teamB}</h3>`;
-        container.appendChild(createButton(`${teamA} ${spread}`, spreadOddsA, "spread"));
-        container.appendChild(createButton(`${teamB} ${spread}`, spreadOddsB, "spread"));
-        container.appendChild(createButton(`${teamA} ML`, mlA, "ml"));
-        container.appendChild(createButton(`${teamB} ML`, mlB, "ml"));
-        container.appendChild(createButton(`OVER ${totalPoints}`, overOdds, "over"));
-        container.appendChild(createButton(`UNDER ${totalPoints}`, underOdds, "under"));
+        const optionsDiv = document.createElement("div");
+        optionsDiv.className = "bet-options";
 
+        optionsDiv.appendChild(createButton(`${teamA} ${spread}`, spreadOddsA, "spread"));
+        optionsDiv.appendChild(createButton(`${teamB} ${spread}`, spreadOddsB, "spread"));
+        optionsDiv.appendChild(createButton(`${teamA} ML`, mlA, "ml"));
+        optionsDiv.appendChild(createButton(`${teamB} ML`, mlB, "ml"));
+        optionsDiv.appendChild(createButton(`OVER ${totalPoints}`, overOdds, "over"));
+        optionsDiv.appendChild(createButton(`UNDER ${totalPoints}`, underOdds, "under"));
+
+        container.appendChild(optionsDiv);
         matchupsDiv.appendChild(container);
       });
     }
   });
 
-  // Wager Input
   const wagerInput = document.getElementById("wager-input");
   if (wagerInput) {
     wagerInput.addEventListener("change", (e) => {
@@ -223,20 +229,3 @@ function renderSlip() {
 
   payoutLine.textContent = `Total Wager: $${wagerAmount.toFixed(2)} | Potential Return: $${payout.toFixed(2)}`;
 }
-
-
-// INSERTED MATCHUP CARD RENDERING
-const matchupCard = document.createElement("div");
-matchupCard.className = "matchup-card";
-matchupCard.innerHTML = `
-  <h3>Game ${index + 1}: ${teamA} vs ${teamB}</h3>
-  <div class="bet-options">
-    <button class="bet-btn">${teamA} ${spreadA} (${oddsA})</button>
-    <button class="bet-btn">${teamB} ${spreadB} (${oddsB})</button>
-    <button class="bet-btn">${teamA} ML (${mlA})</button>
-    <button class="bet-btn">${teamB} ML (${mlB})</button>
-    <button class="bet-btn">OVER ${line} (${overOdds})</button>
-    <button class="bet-btn">UNDER ${line} (${underOdds})</button>
-  </div>
-`;
-document.getElementById("matchups").appendChild(matchupCard);
