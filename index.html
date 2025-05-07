@@ -1,47 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Bobby Bets - Login</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Welcome to Bobby Bets</h1>
-  <p>Please select your name and enter your PIN to begin.</p>
-  <div id="login-buttons"></div>
+  <div class="overlay"></div>
+  <div class="hero-banner">
+    <h1>Bobby Bets</h1>
+    <p class="tagline">Fantasy Wagers. Real Bragging Rights.</p>
+  </div>
 
-  <!-- Login Logic -->
-  <script>
-    const users = [
-      "Justin", "Ryan", "JB", "Fyola", "AK", "Seth",
-      "Jimmy", "Evan", "Jonathan", "Juice", "Timmy", "Kyle"
-    ];
+  <div class="login-panel">
+    <p class="login-instructions">Select your profile to begin betting:</p>
+    <div id="login-buttons">
+      <button class="login-btn" data-user="Justin">Justin</button>
+      <button class="login-btn" data-user="Ryan">Ryan</button>
+      <button class="login-btn" data-user="JB">JB</button>
+      <button class="login-btn" data-user="Fyola">Fyola</button>
+      <button class="login-btn" data-user="AK">AK</button>
+      <button class="login-btn" data-user="Seth">Seth</button>
+      <button class="login-btn" data-user="Jimmy">Jimmy</button>
+      <button class="login-btn" data-user="Evan">Evan</button>
+      <button class="login-btn" data-user="Jonathan">Jonathan</button>
+      <button class="login-btn" data-user="Juice">Juice</button>
+      <button class="login-btn" data-user="Timmy">Timmy</button>
+      <button class="login-btn" data-user="Kyle">Kyle</button>
+    </div>
+  </div>
 
-    const pins = {
-      "Justin": "4732", "Ryan": "8042", "JB": "6204", "Fyola": "7293",
-      "AK": "3471", "Seth": "1579", "Jimmy": "4590", "Evan": "9185",
-      "Jonathan": "5710", "Juice": "8127", "Timmy": "2937", "Kyle": "6935"
-    };
-
-    const container = document.getElementById("login-buttons");
-
-    users.forEach(user => {
-      const btn = document.createElement("button");
-      btn.textContent = user;
-      btn.className = "login-btn";
-      btn.addEventListener("click", () => {
-        const enteredPin = prompt(`Enter PIN for ${user}:`);
-        if (enteredPin === pins[user]) {
-          localStorage.setItem("bobbybets_user", user);
-          window.location.href = "bet.html";
-        } else {
-          alert("Incorrect PIN.");
-        }
-      });
-      container.appendChild(btn);
-    });
-  </script>
+  <div class="pin-modal" id="pinModal">
+    <div class="pin-modal-content">
+      <h2>Enter PIN</h2>
+      <p id="selectedUser"></p>
+      <input type="password" id="pinInput" maxlength="4" placeholder="4-digit PIN" />
+      <button id="submitPin">Enter</button>
+      <button class="cancel-btn" onclick="closePinModal()">Cancel</button>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
