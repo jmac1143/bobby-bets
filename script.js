@@ -229,27 +229,42 @@ function renderSlip() {
 // === LEADERBOARDS ===
 function loadWeeklyLeaderboard() {
   console.log("📊 Fetching weekly leaderboard...");
+
   Papa.parse(WEEKLY_CSV, {
     download: true,
     header: true,
+    skipEmptyLines: true,
     complete: function (results) {
-      console.log("✅ Weekly leaderboard loaded:", results.data);
+      console.log("✅ CSV Parse Raw Results (Weekly):", results);
+      console.log("✅ CSV Parse Data Length (Weekly):", results.data.length);
+      console.log("✅ CSV First Row (Weekly):", results.data[0]);
       renderWeeklyLeaderboard(results.data);
+    },
+    error: function (err) {
+      console.error("❌ Error parsing Weekly CSV:", err);
     }
   });
 }
 
 function loadSeasonLeaderboard() {
   console.log("📊 Fetching season leaderboard...");
+
   Papa.parse(BANKROLL_CSV, {
     download: true,
     header: true,
+    skipEmptyLines: true,
     complete: function (results) {
-      console.log("✅ Season leaderboard loaded:", results.data);
+      console.log("✅ CSV Parse Raw Results (Season):", results);
+      console.log("✅ CSV Parse Data Length (Season):", results.data.length);
+      console.log("✅ CSV First Row (Season):", results.data[0]);
       renderSeasonLeaderboard(results.data);
+    },
+    error: function (err) {
+      console.error("❌ Error parsing Season CSV:", err);
     }
   });
 }
+
 
 function renderWeeklyLeaderboard(data) {
   const container = document.getElementById("weekly-leaderboard");
