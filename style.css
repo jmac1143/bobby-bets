@@ -1,319 +1,181 @@
+/* === GENERAL STYLES === */
 body {
-  font-family: Arial;
-  background: #111;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #0F1C22;
   color: white;
+  margin: 0;
   padding: 20px;
+  line-height: 1.6;
 }
 
+/* === LOGIN PAGE === */
 .login-container {
   text-align: center;
+  padding-top: 50px;
 }
 
-button {
-  margin: 5px;
-  padding: 10px 16px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.bet-slip {
-  background: #222;
-  padding: 10px;
-  margin-top: 30px;
-}
-
-/* === Leaderboard Styles === */
-
-.leaderboard-toggle {
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
+.login-container h1 {
+  font-size: 2rem;
   margin-bottom: 10px;
 }
 
-.toggle-btn {
-  background-color: #A22D2E;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  margin: 0 10px;
-  cursor: pointer;
-  font-weight: bold;
-  border-radius: 5px;
-}
-
-.toggle-btn.active {
-  background-color: #C79A5B;
-  color: #162636;
-}
-
-.leaderboard-view {
-  margin: 20px auto;
-  max-width: 1000px;
-  padding: 10px;
-}
-
-.leaderboard-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: #0F1C22;
-  color: #fff;
-}
-
-.leaderboard-table th,
-.leaderboard-table td {
-  padding: 10px;
-  border: 1px solid #C79A5B;
-  text-align: center;
-}
-
-.leaderboard-table thead {
-  background-color: #A22D2E;
-  color: #fff;
-}
-
-
-/* === ENHANCED LOGIN PAGE STYLING === */
-.login-instructions {
+.login-container p {
   font-size: 1rem;
   color: #ccc;
-  margin-bottom: 2rem;
+  margin-bottom: 30px;
 }
 
-.user-buttons {
+#login-buttons {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1.2rem;
+  gap: 1rem;
 }
 
-.login-btn {
-  background: #222;
-  color: white;
-  border: 1px solid #444;
-  padding: 14px 20px;
-  font-weight: 600;
-  border-radius: 10px;
-  font-size: 1rem;
-  transition: background 0.2s ease-in-out;
-}
-
-.login-btn:hover {
-  background-color: #00aaff;
+.login-btn,
+button {
+  padding: 12px 20px;
+  margin: 5px;
+  font-size: 16px;
+  background-color: #1f2a36;
   color: #fff;
-}
-
-.pin-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.pin-modal-content {
-  background: #fff;
-  color: #000;
-  padding: 2rem;
-  border-radius: 12px;
-  text-align: center;
-  width: 300px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-}
-
-.pin-modal-content input {
-  font-size: 1.2rem;
-  padding: 0.5rem;
-  width: 100%;
-  margin: 1rem 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-.pin-modal-content button {
-  padding: 10px 20px;
-  margin: 0.25rem;
-  font-weight: 600;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-}
-
-.pin-modal-content #submitPin {
-  background-color: #00aaff;
-  color: white;
-}
-
-.cancel-btn {
-  background-color: #adb5bd;
-  color: #000;
-}
-
-.cancel-btn:hover {
-  background-color: #868e96;
-}
-
-/* === MATCHUPS DISPLAY === */
-.matchups-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin: 2rem 0;
-}
-
-.matchups-container .matchup-card {
-  background-color: #1c1c1e;
   border: 1px solid #333;
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
-
-.matchup-card h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #f0f0f0;
-}
-
-.matchup-card .bet-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.bet-options button {
-  flex: 1 1 45%;
-  background-color: #2a2a2c;
-  color: white;
-  border: 1px solid #444;
   border-radius: 8px;
-  padding: 0.75rem;
-  text-align: center;
-  font-weight: 600;
-  font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
 
-.bet-options button:hover {
+.login-btn:hover,
+button:hover {
   background-color: #00aaff;
-  color: white;
+  color: #fff;
+}
+
+/* === MAIN HEADINGS === */
+h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin-bottom: 5px;
+}
+
+h3 {
+  font-size: 1.1rem;
+  margin: 1rem 0 0.5rem;
+  color: #C79A5B;
+}
+
+/* === MATCHUPS CONTAINER === */
+#matchups > div {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+#matchups button {
+  display: inline-block;
+  margin: 6px;
+  background-color: #222;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-weight: bold;
+  font-size: 0.95rem;
+  color: #eee;
+}
+
+#matchups button:hover {
+  background-color: #007acc;
+  border-color: #00aaff;
 }
 
 /* === BET SLIP === */
 .bet-slip {
-  background-color: #1a1a1a;
-  border: 1px solid #444;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-top: 2rem;
-  max-width: 500px;
+  background: #1c1c1c;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 30px;
+  max-width: 600px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 
 .bet-slip h3 {
   margin-top: 0;
-  font-size: 1.3rem;
-  font-weight: 700;
   margin-bottom: 1rem;
+  font-size: 1.25rem;
   color: #fff;
 }
 
-.bet-list {
+.bet-slip ul {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 0 10px;
 }
 
-.bet-list li {
-  background-color: #2b2b2b;
-  padding: 0.5rem 0.75rem;
-  margin-bottom: 0.5rem;
+.bet-slip li {
+  padding: 8px 12px;
+  background-color: #2a2a2a;
+  margin-bottom: 6px;
   border-radius: 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.bet-list li button {
+.bet-slip li button {
   background: none;
   border: none;
   color: #ff4d4d;
   font-weight: bold;
+  font-size: 1rem;
   cursor: pointer;
 }
 
-.odds-info {
-  margin: 0.75rem 0;
-  color: #ccc;
-  font-size: 0.95rem;
+#parlay-line,
+#payout-line {
   font-style: italic;
+  font-size: 0.95rem;
+  color: #ccc;
 }
 
-.wager-controls {
-  margin: 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.wager-controls input {
+#wager-input {
   width: 100px;
-  padding: 0.5rem;
-  background-color: #111;
-  border: 1px solid #555;
+  padding: 6px;
+  border: 1px solid #444;
+  background: #111;
   color: white;
   border-radius: 6px;
+  margin-left: 5px;
 }
 
-.slip-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 1rem;
-}
-
-.slip-btn {
-  flex: 1 1 48%;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
+.bet-slip button {
+  margin-top: 8px;
+  padding: 10px 16px;
   font-size: 1rem;
+  border-radius: 6px;
+  border: none;
 }
 
-.slip-btn.primary {
+#reset-slip {
+  background-color: #555;
+  margin-right: 10px;
+}
+
+#submit-bet {
   background-color: #00aaff;
-  color: white;
 }
 
-.slip-btn.secondary {
-  background-color: #444;
-  color: #fff;
+#reset-slip:hover {
+  background-color: #777;
 }
 
-.slip-btn.primary:hover {
+#submit-bet:hover {
   background-color: #007acc;
-}
-
-.slip-btn.secondary:hover {
-  background-color: #666;
-}
-
-@media (max-width: 768px) {
-  .bet-options button {
-    flex: 1 1 100%;
-  }
-
-  .slip-buttons {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
 }
