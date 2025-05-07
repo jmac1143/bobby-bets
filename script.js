@@ -1,4 +1,5 @@
-// === BOBBY BETS FULL SCRIPT ===
+
+// === BOBBY BETS CORE SCRIPT (Pre-Scoreboard) ===
 console.log("SCRIPT LOADED ✅");
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -11,18 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Running bet page init...");
     initBetPage();
   }
-
-  loadWeeklyLeaderboard();
-  loadSeasonLeaderboard();
-  setupLeaderboardToggle();
 });
 
 // === CONFIG ===
 const BANKROLL_CSV_RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
-const WEEKLY_CSV_RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=1039517288&single=true&output=csv";
-const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${BANKROLL_CSV_RAW}`;
-const WEEKLY_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${WEEKLY_CSV_RAW}`;
-
 const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
 const MAX_WAGER = 500;
 
@@ -46,11 +39,8 @@ let currentUser = localStorage.getItem("bobbybets_user");
 const weekNum = getCurrentNFLWeek();
 const gid = WEEK_GID_MAP[weekNum];
 const MATCHUP_CSV_RAW = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=${gid}&single=true&output=csv`;
-
 const MATCHUP_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${MATCHUP_CSV_RAW}`;
 const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${BANKROLL_CSV_RAW}`;
-const WEEKLY_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${WEEKLY_CSV_RAW}`;
-
 
 let betSlip = [];
 let wagerAmount = 50;
@@ -228,92 +218,4 @@ function renderSlip() {
     : `<em>${betSlip.length}-Leg Parlay</em><br>Combined Odds: ${parlayAmerican} (${decimalOdds.toFixed(2)})`;
 
   payoutLine.textContent = `Total Wager: $${wagerAmount.toFixed(2)} | Potential Return: $${payout.toFixed(2)}`;
-}
-
-// === LEADERBOARDS ===
-function loadWeeklyLeaderboard() {
-  console.log("📊 Fetching weekly leaderboard...");
-
-  Papa.parse(WEEKLY_CSV, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: function (results) {
-      console.log("✅ CSV Parse Raw Results (Weekly):", results);
-      console.log("✅ CSV Parse Data Length (Weekly):", results.data.length);
-      console.log("✅ CSV First Row (Weekly):", results.data[0]);
-      renderWeeklyLeaderboard(results.data);
-    },
-    error: function (err) {
-      console.error("❌ Error parsing Weekly CSV:", err);
-    }
-  });
-}
-
-function loadSeasonLeaderboard() {
-  console.log("📊 Fetching season leaderboard...");
-
-  Papa.parse(BANKROLL_CSV, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: function (results) {
-      console.log("✅ CSV Parse Raw Results (Season):", results);
-      console.log("✅ CSV Parse Data Length (Season):", results.data.length);
-      console.log("✅ CSV First Row (Season):", results.data[0]);
-      renderSeasonLeaderboard(results.data);
-    },
-    error: function (err) {
-      console.error("❌ Error parsing Season CSV:", err);
-    }
-  });
-}
-
-
-function renderWeeklyLeaderboard(data) {
-  const container = document.getElementById("weekly-leaderboard");
-  if (!container || !data || data.length === 0) return;
-  container.innerHTML = generateTableHTML(data);
-}
-
-function renderSeasonLeaderboard(data) {
-  const container = document.getElementById("season-leaderboard");
-  if (!container || !data || data.length === 0) return;
-
-  const columnsToShow = ["Bettor", "Bankroll", "Bets Placed", "Bets Won", "Win %", "Total Wagered", "Payouts Earned"];
-  const filtered = data.map(row => {
-    let result = {};
-    columnsToShow.forEach(key => result[key] = row[key]);
-    return result;
-  });
-
-  container.innerHTML = generateTableHTML(filtered);
-}
-
-function generateTableHTML(data) {
-  let html = `<table class="leaderboard-table"><thead><tr>`;
-  const headers = Object.keys(data[0]);
-  headers.forEach(header => html += `<th>${header}</th>`);
-  html += `</tr></thead><tbody>`;
-
-  data.forEach(row => {
-    html += `<tr>`;
-    headers.forEach(key => html += `<td>${row[key]}</td>`);
-    html += `</tr>`;
-  });
-
-  html += `</tbody></table>`;
-  return html;
-}
-
-function setupLeaderboardToggle() {
-  document.querySelectorAll('.toggle-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const view = btn.getAttribute('data-view');
-      document.getElementById("weekly-leaderboard").style.display = (view === 'weekly') ? 'block' : 'none';
-      document.getElementById("season-leaderboard").style.display = (view === 'season') ? 'block' : 'none';
-    });
-  });
 }
