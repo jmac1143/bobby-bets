@@ -20,6 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
 // === CONFIG ===
 const BANKROLL_CSV_RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=399533112&single=true&output=csv";
 const WEEKLY_CSV_RAW = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTBKKrO3Ieu6I1GlKiPnqcPIS5G8hopZzxgYqD9TS-W7Avn8l96Wlt6VOWxJcwdRKfJz2iZnPS_6Tiw/pub?gid=1039517288&single=true&output=csv";
+const BANKROLL_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${BANKROLL_CSV_RAW}`;
+const WEEKLY_CSV = `https://icy-thunder-2eb4.jfmccartney.workers.dev/?url=${WEEKLY_CSV_RAW}`;
+
 const SCRIPT_ENDPOINT = "https://icy-thunder-2eb4.jfmccartney.workers.dev/";
 const MAX_WAGER = 500;
 
