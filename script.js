@@ -223,3 +223,20 @@ function renderSlip() {
 
   payoutLine.textContent = `Total Wager: $${wagerAmount.toFixed(2)} | Potential Return: $${payout.toFixed(2)}`;
 }
+
+
+// INSERTED MATCHUP CARD RENDERING
+const matchupCard = document.createElement("div");
+matchupCard.className = "matchup-card";
+matchupCard.innerHTML = `
+  <h3>Game ${index + 1}: ${teamA} vs ${teamB}</h3>
+  <div class="bet-options">
+    <button class="bet-btn">${teamA} ${spreadA} (${oddsA})</button>
+    <button class="bet-btn">${teamB} ${spreadB} (${oddsB})</button>
+    <button class="bet-btn">${teamA} ML (${mlA})</button>
+    <button class="bet-btn">${teamB} ML (${mlB})</button>
+    <button class="bet-btn">OVER ${line} (${overOdds})</button>
+    <button class="bet-btn">UNDER ${line} (${underOdds})</button>
+  </div>
+`;
+document.getElementById("matchups").appendChild(matchupCard);
