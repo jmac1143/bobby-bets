@@ -346,3 +346,31 @@ body.bet-page {
   color: #000;
   border-color: #C79A5B;
 }
+
+/* === Matchups Layout Fix === */
+.matchups-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  justify-content: center;
+}
+
+/* === Enhanced Wager Input === */
+#wager-input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #00aaff;
+  background-color: #1a1a1a;
+  color: #fff;
+  font-size: 1.1rem;
+  box-shadow: 0 0 10px rgba(0, 170, 255, 0.1);
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+#wager-input:focus {
+  outline: none;
+  border-color: #C79A5B;
+  box-shadow: 0 0 12px rgba(199, 154, 91, 0.4);
+}
