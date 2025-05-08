@@ -175,10 +175,30 @@ animateBankrollUpdate(currentDisplay, bankroll);
     })
       .then(res => res.text())
       .then(() => {
-        alert("Bet submitted!");
-        betSlip = [];
-        renderSlip();
-      })
+       .then(() => {
+  const slip = document.getElementById("confirmation-slip");
+  if (slip) {
+    const selections = betSlip.map(b => `• ${b.label} (${b.odds > 0 ? '+' : ''}${b.odds})`).join("<br>");
+    const timestamp = new Date().toLocaleString();
+    const returnAmount = (wagerAmount * decimalOdds).toFixed(2);
+
+    slip.innerHTML = `
+      <strong>🧾 BET CONFIRMED!</strong><br><br>
+      🧍 ${currentUser}<br>
+      📆 Week ${getCurrentNFLWeek()} – ${timestamp}<br><br>
+      🎯 Selections:<br>${selections}<br><br>
+      💵 Wager: $${wagerAmount.toFixed(2)}<br>
+      💰 Potential Return: $${returnAmount}
+    `;
+    slip.classList.remove("hidden");
+
+    setTimeout(() => slip.classList.add("hidden"), 7000);
+  }
+
+  betSlip = [];
+  renderSlip();
+})
+
       .catch(error => {
         console.error("Error submitting bet:", error);
         alert("Error submitting bet. See console.");
