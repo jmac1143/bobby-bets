@@ -96,13 +96,16 @@ function initBetPage() {
         const underOdds = Number(row["Under Odds"]) || -110;
         const totalPoints = row["Over/Under Line"] || "";
 
-        const createButton = (label, odds, type) => {
-          const btn = document.createElement("button");
-          btn.className = "bet-btn";
-          btn.textContent = `${label} (${odds > 0 ? "+" + odds : odds})`;
-          btn.addEventListener("click", () => addToSlip({ selection: label, odds, type }));
-          return btn;
-        };
+       const createButton = (label, odds, type, context = "") => {
+  const btn = document.createElement("button");
+  btn.className = "bet-btn";
+  btn.textContent = `${label} (${odds > 0 ? "+" + odds : odds})`;
+  btn.addEventListener("click", () =>
+    addToSlip({ selection: `${label}${context ? " – " + context : ""}`, odds, type })
+  );
+  return btn;
+};
+
 
         const container = document.createElement("div");
         container.className = "matchup-card";
