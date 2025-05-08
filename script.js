@@ -230,8 +230,7 @@ function renderSlip() {
 
   list.innerHTML = "";
   betSlip.forEach((bet, index) => {
-    list.innerHTML += `<li>${bet.label} @ ${bet.odds > 0 ? "+" + bet.odds : bet.odds} <button onclick="removeFromSlip(${index})">X</button></li>`;
-  });
+    list.innerHTML += `<li>${bet.selection} @ ${bet.odds > 0 ? "+" + bet.odds : bet.odds} <button onclick="removeFromSlip(${index})">X</button></li>`;
 
   if (betSlip.length === 0) {
     parlayLine.textContent = "";
