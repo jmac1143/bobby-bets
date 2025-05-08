@@ -491,6 +491,9 @@ body.bet-page {
   z-index: 1000;
   animation: slideFadeIn 0.4s ease-out;
 }
+ .confirmation-slip.hidden {
+  display: none;
+}
 
 @keyframes slideFadeIn {
   from { opacity: 0; transform: translate(-50%, -40%); }
