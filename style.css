@@ -462,3 +462,17 @@ body.bet-page {
   background-color: #00aaff;
   color: #fff;
 }
+#bankroll.bankroll-gain {
+  color: #00ffcc;
+  text-shadow: 0 0 8px #00ffaa, 0 0 16px #00ffaa;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+}
+
+#bankroll.bankroll-loss {
+  color: #ff4444;
+  text-shadow: 0 0 4px #aa0000;
+  opacity: 0.7;
+  font-style: italic;
+  transition: all 0.3s ease-in-out;
+}
