@@ -237,3 +237,23 @@ function adjustWager(delta) {
   wagerAmount = value;
   renderSlip();
 }
+function animateBankrollUpdate(oldValue, newValue) {
+  const display = document.getElementById("bankroll");
+  if (!display) return;
+
+  const duration = 500;
+  const start = performance.now();
+  const difference = newValue - oldValue;
+
+  function updateFrame(timestamp) {
+    const elapsed = timestamp - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const current = oldValue + difference * progress;
+    display.textContent = current.toLocaleString(undefined, { minimumFractionDigits: 2 });
+    if (progress < 1) {
+      requestAnimationFrame(updateFrame);
+    }
+  }
+
+  requestAnimationFrame(updateFrame);
+}
