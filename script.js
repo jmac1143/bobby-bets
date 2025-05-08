@@ -160,7 +160,7 @@ function initBetPage() {
 
     const payload = {
       bettor: currentUser,
-      bets: betSlip.map(b => ({ type: b.type, selection: b.label, odds: Number(b.odds) })),
+     bets: betSlip.map(b => ({ type: b.type, selection: b.selection, odds: Number(b.odds) })),
       wager: wagerAmount,
       timestamp,
       week
