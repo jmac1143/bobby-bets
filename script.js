@@ -323,12 +323,15 @@ function loadPendingSlips() {
       userSlips.forEach(slip => {
         const card = document.createElement("div");
         card.className = "bet-card";
+        const rawReturn = slip.Return || slip["Potential Return"] || slip.Payout || "";
+const returnAmount = parseFloat(rawReturn.toString().replace(/[^0-9.]/g, "")) || 0;
+
         card.innerHTML = `
           <strong>🧾 ${slip.Timestamp}</strong><br>
           📆 Week ${slip.Week} – <em>${slip.Status}</em><br><br>
           🎯 Selections:<br>${slip.Selections.replace(/, /g, "<br>")}<br><br>
           💵 Wager: ${slip.Wager}<br>
-          💰 Potential Return: ${slip.Return}
+          💰 Potential Return: $${returnAmount.toFixed(2)}
         `;
         container.appendChild(card);
       });
