@@ -339,12 +339,13 @@ function loadPendingSlips() {
 const returnAmount = parseFloat(rawReturn.toString().replace(/[^0-9.]/g, "")) || 0;
 
         card.innerHTML = `
-          <strong>🧾 ${slip.Timestamp}</strong><br>
-          📆 Week ${slip.Week} – <em>${slip.Status}</em><br><br>
-          🎯 Selections:<br>${slip.Selections.replace(/, /g, "<br>")}<br><br>
-          💵 Wager: ${slip.Wager}<br>
-          💰 Potential Return: $${returnAmount.toFixed(2)}
-        `;
+  <strong>📅 ${slip.Timestamp}</strong><br>
+  📆 <span>Week ${slip.Week} – <em>${slip.Status}</em></span><br><br>
+  🎯 <strong>Selections:</strong><br>
+  ${slip.Selections.replace(/, /g, "<br>")}<br><br>
+  💵 <span class="amount">Wager: ${slip.Wager}</span><br>
+  💰 <span class="amount">Potential Return: $${returnAmount.toFixed(2)}</span>
+`;
         container.appendChild(card);
       });
     }
