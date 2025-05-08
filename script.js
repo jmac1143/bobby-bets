@@ -102,7 +102,8 @@ animateBankrollUpdate(currentDisplay, bankroll);
           const btn = document.createElement("button");
           btn.className = "bet-btn";
           btn.textContent = `${label} (${odds > 0 ? "+" + odds : odds})`;
-          btn.addEventListener("click", () => addToSlip({ label, odds, type }));
+          btn.addEventListener("click", () => addToSlip({ selection: label, odds, type });
+
           return btn;
         };
 
