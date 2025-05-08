@@ -1,4 +1,3 @@
-
 // === BOBBY BETS CORE SCRIPT (Production Version) ===
 console.log("SCRIPT LOADED ✅");
 
@@ -70,8 +69,7 @@ function initBetPage() {
       const userRow = data.find(row => row.Bettor?.trim().toLowerCase() === currentUser?.toLowerCase());
       const bankroll = userRow ? parseFloat(userRow.Bankroll.replace(/[$,]/g, '')) || 0 : 0;
       const currentDisplay = parseFloat(document.getElementById("bankroll").textContent.replace(/[$,]/g, '')) || 0;
-animateBankrollUpdate(currentDisplay, bankroll);
-
+      animateBankrollUpdate(currentDisplay, bankroll);
     }
   });
 
@@ -103,8 +101,6 @@ animateBankrollUpdate(currentDisplay, bankroll);
           btn.className = "bet-btn";
           btn.textContent = `${label} (${odds > 0 ? "+" + odds : odds})`;
           btn.addEventListener("click", () => addToSlip({ selection: label, odds, type }));
-
-
           return btn;
         };
 
@@ -169,45 +165,45 @@ animateBankrollUpdate(currentDisplay, bankroll);
       timestamp,
       week
     };
- let decimalOdds = betSlip.reduce((acc, bet) => {
-    const odds = bet.odds;
-    const decimal = odds > 0 ? (odds / 100 + 1) : (100 / Math.abs(odds) + 1);
-    return acc * decimal;
-  }, 1);
+
+    let decimalOdds = betSlip.reduce((acc, bet) => {
+      const odds = bet.odds;
+      const decimal = odds > 0 ? (odds / 100 + 1) : (100 / Math.abs(odds) + 1);
+      return acc * decimal;
+    }, 1);
+
     fetch(SCRIPT_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     })
-      .then(res => res.text())
-      .then(() => {
-  const slip = document.getElementById("confirmation-slip");
-  if (slip) {
-    const selections = betSlip.map(b => `• ${b.selection} (${b.odds > 0 ? '+' : ''}${b.odds})`).join("<br>");
-    const timestamp = new Date().toLocaleString();
-    const returnAmount = (wagerAmount * decimalOdds).toFixed(2);
+    .then(res => res.text())
+    .then(() => {
+      const slip = document.getElementById("confirmation-slip");
+      if (slip) {
+        const selections = betSlip.map(b => `• ${b.selection} (${b.odds > 0 ? '+' : ''}${b.odds})`).join("<br>");
+        const timestamp = new Date().toLocaleString();
+        const returnAmount = (wagerAmount * decimalOdds).toFixed(2);
 
-    slip.innerHTML = `
-      <strong>🧾 BET CONFIRMED!</strong><br><br>
-      🧍 ${currentUser}<br>
-      📆 Week ${getCurrentNFLWeek()} – ${timestamp}<br><br>
-      🎯 Selections:<br>${selections}<br><br>
-      💵 Wager: $${wagerAmount.toFixed(2)}<br>
-      💰 Potential Return: $${returnAmount}
-    `;
-    slip.classList.remove("hidden");
+        slip.innerHTML = `
+          <strong>🧾 BET CONFIRMED!</strong><br><br>
+          🧍 ${currentUser}<br>
+          📆 Week ${getCurrentNFLWeek()} – ${timestamp}<br><br>
+          🎯 Selections:<br>${selections}<br><br>
+          💵 Wager: $${wagerAmount.toFixed(2)}<br>
+          💰 Potential Return: $${returnAmount}
+        `;
+        slip.classList.remove("hidden");
+        setTimeout(() => slip.classList.add("hidden"), 7000);
+      }
 
-    setTimeout(() => slip.classList.add("hidden"), 7000);
-  }
-
-  betSlip = [];
-  renderSlip();
-})
-
-      .catch(error => {
-        console.error("Error submitting bet:", error);
-        alert("Error submitting bet. See console.");
-      });
+      betSlip = [];
+      renderSlip();
+    })
+    .catch(error => {
+      console.error("Error submitting bet:", error);
+      alert("Error submitting bet. See console.");
+    });
   });
 }
 
@@ -231,6 +227,7 @@ function renderSlip() {
   list.innerHTML = "";
   betSlip.forEach((bet, index) => {
     list.innerHTML += `<li>${bet.selection} @ ${bet.odds > 0 ? "+" + bet.odds : bet.odds} <button onclick="removeFromSlip(${index})">X</button></li>`;
+  });
 
   if (betSlip.length === 0) {
     parlayLine.textContent = "";
@@ -238,11 +235,11 @@ function renderSlip() {
     return;
   }
 
-let decimalOdds = betSlip.reduce((acc, bet) => {
-  const odds = bet.odds;
-  const decimal = odds > 0 ? (odds / 100 + 1) : (100 / Math.abs(odds) + 1);
-  return acc * decimal;
-}, 1);
+  let decimalOdds = betSlip.reduce((acc, bet) => {
+    const odds = bet.odds;
+    const decimal = odds > 0 ? (odds / 100 + 1) : (100 / Math.abs(odds) + 1);
+    return acc * decimal;
+  }, 1);
   const parlayAmerican = decimalOdds >= 2
     ? `+${Math.round((decimalOdds - 1) * 100)}`
     : `-${Math.round(100 / (decimalOdds - 1))}`;
@@ -254,14 +251,16 @@ let decimalOdds = betSlip.reduce((acc, bet) => {
 
   payoutLine.textContent = `Total Wager: $${wagerAmount.toFixed(2)} | Potential Return: $${payout.toFixed(2)}`;
 }
+
 function adjustWager(delta) {
   const input = document.getElementById("wager-input");
   let value = parseInt(input.value) || 0;
-  value = Math.min(Math.max(1, value + delta), MAX_WAGER); // Clamp value between 1 and MAX_WAGER
+  value = Math.min(Math.max(1, value + delta), MAX_WAGER);
   input.value = value;
   wagerAmount = value;
   renderSlip();
 }
+
 function animateBankrollUpdate(oldValue, newValue) {
   const display = document.getElementById("bankroll");
   if (!display) return;
@@ -271,7 +270,6 @@ function animateBankrollUpdate(oldValue, newValue) {
   const start = performance.now();
   const difference = newValue - oldValue;
 
-  // Add visual effect
   display.classList.remove("bankroll-gain", "bankroll-loss");
   display.classList.add(isGain ? "bankroll-gain" : "bankroll-loss");
 
@@ -284,7 +282,6 @@ function animateBankrollUpdate(oldValue, newValue) {
     if (progress < 1) {
       requestAnimationFrame(updateFrame);
     } else {
-      // Remove effect after animation
       setTimeout(() => {
         display.classList.remove("bankroll-gain", "bankroll-loss");
       }, 500);
