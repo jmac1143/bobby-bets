@@ -243,17 +243,28 @@ function animateBankrollUpdate(oldValue, newValue) {
   const display = document.getElementById("bankroll");
   if (!display) return;
 
-  const duration = 500;
+  const isGain = newValue > oldValue;
+  const duration = 1500;
   const start = performance.now();
   const difference = newValue - oldValue;
+
+  // Add visual effect
+  display.classList.remove("bankroll-gain", "bankroll-loss");
+  display.classList.add(isGain ? "bankroll-gain" : "bankroll-loss");
 
   function updateFrame(timestamp) {
     const elapsed = timestamp - start;
     const progress = Math.min(elapsed / duration, 1);
     const current = oldValue + difference * progress;
     display.textContent = current.toLocaleString(undefined, { minimumFractionDigits: 2 });
+
     if (progress < 1) {
       requestAnimationFrame(updateFrame);
+    } else {
+      // Remove effect after animation
+      setTimeout(() => {
+        display.classList.remove("bankroll-gain", "bankroll-loss");
+      }, 500);
     }
   }
 
