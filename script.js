@@ -301,7 +301,7 @@ function animateBankrollUpdate(oldValue, newValue) {
 function loadPendingSlips() {
   if (!currentUser) return;
 
-  const PENDING_GID = "1763848051"; // Replace with correct GID if needed
+  const PENDING_GID = "2135863399"; // Replace with correct GID if needed
   const pendingURL = `${SCRIPT_ENDPOINT}?url=${encodeURIComponent(SHEET_BASE_URL + PENDING_GID + "&single=true&output=csv")}`;
 
   Papa.parse(pendingURL, {
