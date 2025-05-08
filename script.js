@@ -167,7 +167,11 @@ animateBankrollUpdate(currentDisplay, bankroll);
       timestamp,
       week
     };
-
+ let decimalOdds = betSlip.reduce((acc, bet) => {
+    const odds = bet.odds;
+    const decimal = odds > 0 ? (odds / 100 + 1) : (100 / Math.abs(odds) + 1);
+    return acc * decimal;
+  }, 1);
     fetch(SCRIPT_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -233,11 +237,6 @@ function renderSlip() {
     return;
   }
 
-  let decimalOdds = betSlip.reduce((acc, bet) => {
-    const odds = bet.odds;
-    const decimal = odds > 0 ? (odds / 100 + 1) : (100 / Math.abs(odds) + 1);
-    return acc * decimal;
-  }, 1);
 
   const parlayAmerican = decimalOdds >= 2
     ? `+${Math.round((decimalOdds - 1) * 100)}`
