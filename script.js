@@ -297,3 +297,40 @@ function animateBankrollUpdate(oldValue, newValue) {
 
   requestAnimationFrame(updateFrame);
 }
+function loadPendingSlips() {
+  if (!currentUser) return;
+
+  const PENDING_GID = "1763848051"; // Replace with correct GID if needed
+  const pendingURL = `${SCRIPT_ENDPOINT}?url=${encodeURIComponent(SHEET_BASE_URL + PENDING_GID + "&single=true&output=csv")}`;
+
+  Papa.parse(pendingURL, {
+    download: true,
+    header: true,
+    complete: function (results) {
+      const data = results.data;
+      const userSlips = data.filter(row => row.Bettor?.trim().toLowerCase() === currentUser.toLowerCase());
+
+      const container = document.getElementById("pending-slips");
+      if (!container) return;
+
+      if (userSlips.length === 0) {
+        container.innerHTML = "<p>No pending bets yet.</p>";
+        return;
+      }
+
+      container.innerHTML = "";
+      userSlips.forEach(slip => {
+        const card = document.createElement("div");
+        card.className = "bet-card";
+        card.innerHTML = `
+          <strong>🧾 ${slip.Timestamp}</strong><br>
+          📆 Week ${slip.Week} – <em>${slip.Status}</em><br><br>
+          🎯 Selections:<br>${slip.Selections.replace(/, /g, "<br>")}<br><br>
+          💵 Wager: ${slip.Wager}<br>
+          💰 Potential Return: ${slip.Return}
+        `;
+        container.appendChild(card);
+      });
+    }
+  });
+}
