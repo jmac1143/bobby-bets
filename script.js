@@ -212,6 +212,7 @@ optionsDiv.appendChild(createButton(`UNDER ${totalPoints}`, underOdds, "under", 
       alert("Error submitting bet. See console.");
     });
   });
+  loadPendingSlips();
 }
 
 function addToSlip(bet) {
