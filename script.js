@@ -175,7 +175,6 @@ animateBankrollUpdate(currentDisplay, bankroll);
     })
       .then(res => res.text())
       .then(() => {
-       .then(() => {
   const slip = document.getElementById("confirmation-slip");
   if (slip) {
     const selections = betSlip.map(b => `• ${b.label} (${b.odds > 0 ? '+' : ''}${b.odds})`).join("<br>");
