@@ -69,7 +69,9 @@ function initBetPage() {
       const data = results.data;
       const userRow = data.find(row => row.Bettor?.trim().toLowerCase() === currentUser?.toLowerCase());
       const bankroll = userRow ? parseFloat(userRow.Bankroll.replace(/[$,]/g, '')) || 0 : 0;
-      document.getElementById("bankroll").textContent = bankroll.toLocaleString(undefined, { minimumFractionDigits: 2 });
+      const currentDisplay = parseFloat(document.getElementById("bankroll").textContent.replace(/[$,]/g, '')) || 0;
+animateBankrollUpdate(currentDisplay, bankroll);
+
     }
   });
 
