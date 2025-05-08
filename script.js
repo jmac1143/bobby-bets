@@ -181,7 +181,7 @@ animateBankrollUpdate(currentDisplay, bankroll);
       .then(() => {
   const slip = document.getElementById("confirmation-slip");
   if (slip) {
-    const selections = betSlip.map(b => `• ${b.label} (${b.odds > 0 ? '+' : ''}${b.odds})`).join("<br>");
+    const selections = betSlip.map(b => `• ${b.selection} (${b.odds > 0 ? '+' : ''}${b.odds})`).join("<br>");
     const timestamp = new Date().toLocaleString();
     const returnAmount = (wagerAmount * decimalOdds).toFixed(2);
 
