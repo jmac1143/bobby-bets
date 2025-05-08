@@ -200,6 +200,18 @@ optionsDiv.appendChild(createButton(`UNDER ${totalPoints}`, underOdds, "under", 
           💵 Wager: $${wagerAmount.toFixed(2)}<br>
           💰 Potential Return: $${returnAmount}
         `;
+        const newPending = {
+  Timestamp: timestamp,
+  Bettor: currentUser,
+  Week: getCurrentNFLWeek(),
+  Selections: betSlip.map(b => `${b.selection} (${b.odds > 0 ? '+' : ''}${b.odds})`).join(", "),
+  Wager: `$${wagerAmount.toFixed(2)}`,
+  Return: `$${(wagerAmount * decimalOdds).toFixed(2)}`,
+  Status: "Pending"
+};
+
+appendPendingSlip(newPending);
+
         slip.classList.remove("hidden");
         setTimeout(() => slip.classList.add("hidden"), 7000);
       }
@@ -337,4 +349,24 @@ const returnAmount = parseFloat(rawReturn.toString().replace(/[^0-9.]/g, "")) ||
       });
     }
   });
+}
+function appendPendingSlip(slip) {
+  const container = document.getElementById("pending-slips");
+  if (!container) return;
+
+  const card = document.createElement("div");
+  card.className = "bet-card";
+
+  const rawReturn = slip.Return || "";
+  const returnAmount = parseFloat(rawReturn.toString().replace(/[^0-9.]/g, "")) || 0;
+
+  card.innerHTML = `
+    <strong>📅 ${slip.Timestamp}</strong><br>
+    📆 Week ${slip.Week} – <em>${slip.Status}</em><br><br>
+    🎯 Selections:<br>${slip.Selections.replace(/, /g, "<br>")}<br><br>
+    💵 Wager: ${slip.Wager}<br>
+    💰 Potential Return: $${returnAmount.toFixed(2)}
+  `;
+
+  container.prepend(card);
 }
