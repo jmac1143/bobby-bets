@@ -110,13 +110,15 @@ function initBetPage() {
         const optionsDiv = document.createElement("div");
         optionsDiv.className = "bet-options";
 
-        optionsDiv.appendChild(createButton(`${teamA} ${spread > 0 ? "+" + spread : spread}`, spreadOddsA, "spread"));
-optionsDiv.appendChild(createButton(`${teamB} ${spread > 0 ? "+" + spread : spread}`, spreadOddsB, "spread"));
+       const spreadVal = parseFloat(spread);
+optionsDiv.appendChild(createButton(`${teamA} ${spreadVal > 0 ? "-" + spreadVal : spreadVal}`, spreadOddsA, "spread"));
+optionsDiv.appendChild(createButton(`${teamB} ${spreadVal > 0 ? "+" + spreadVal : -spreadVal}`, spreadOddsB, "spread"));
         optionsDiv.appendChild(createButton(`${teamA} ML`, mlA, "ml"));
         optionsDiv.appendChild(createButton(`${teamB} ML`, mlB, "ml"));
         const gameLabel = `${teamA} vs ${teamB}`;
-optionsDiv.appendChild(createButton(`OVER ${totalPoints} – ${gameLabel}`, overOdds, "over"));
-optionsDiv.appendChild(createButton(`UNDER ${totalPoints} – ${gameLabel}`, underOdds, "under"));
+optionsDiv.appendChild(createButton(`OVER ${totalPoints}`, overOdds, "over", `${gameLabel}`));
+optionsDiv.appendChild(createButton(`UNDER ${totalPoints}`, underOdds, "under", `${gameLabel}`));
+
 
 
         container.appendChild(optionsDiv);
