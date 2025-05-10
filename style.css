@@ -537,4 +537,53 @@ body.bet-page {
   font-weight: bold;
   color: #00ff99;
 }
+#bet-history {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.bet-card {
+  background-color: #111;
+  border: 1px solid #333;
+  border-left: 4px solid #c79a5b; /* gold stripe */
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  font-family: 'Karla', sans-serif;
+  color: #eee;
+  max-width: 420px;
+}
+
+.bet-card strong {
+  color: #c79a5b;
+  font-size: 1rem;
+}
+
+.bet-card em {
+  color: #aaa;
+  font-style: normal;
+}
+
+.bet-card br {
+  line-height: 1.6;
+}
+
+.result-win {
+  color: #00ff99;
+  font-weight: bold;
+}
+.result-loss {
+  color: #ff4d4d;
+  font-weight: bold;
+}
+.result-push {
+  color: #f2c94c;
+  font-weight: bold;
+}
+.result-pending {
+  color: #aaa;
+  font-style: italic;
+}
 
