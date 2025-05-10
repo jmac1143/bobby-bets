@@ -371,3 +371,65 @@ function appendPendingSlip(slip) {
 
   container.prepend(card);
 }
+const BETS_CSV = `${SCRIPT_ENDPOINT}?url=${encodeURIComponent(SHEET_BASE_URL + "362709623" + "&single=true&output=csv")}`;
+
+Papa.parse(BETS_CSV, {
+  download: true,
+  header: true,
+  complete: function (results) {
+    const data = results.data;
+    const userBets = data.filter(row => row.Bettor?.trim().toLowerCase() === currentUser.toLowerCase());
+
+    const grouped = {};
+    userBets.forEach(row => {
+      const pid = row["Parlay ID"];
+      if (!grouped[pid]) grouped[pid] = [];
+      grouped[pid].push(row);
+    });
+
+    const container = document.getElementById("bet-history");
+    if (!container) return;
+    container.innerHTML = "";
+
+    Object.keys(grouped).reverse().forEach(pid => {
+      const slip = grouped[pid];
+      const first = slip[0];
+      const selections = slip.map(b => `${b.Selection} (${b.Odds})`).join("<br>");
+
+      const payout = parseFloat((first.Payout || "").toString().replace(/[^0-9.]/g, "")) || 0;
+      const wager = parseFloat(first.Wager || 0);
+      const status = first.Status || "In Progress";
+      const result = first.Result || "-";
+
+      let resultIcon = "";
+      let resultClass = "result-pending";
+
+      if (result === "WIN") {
+        resultIcon = "✅";
+        resultClass = "result-win";
+      } else if (result === "LOSS") {
+        resultIcon = "❌";
+        resultClass = "result-loss";
+      } else if (result === "PUSH") {
+        resultIcon = "➖";
+        resultClass = "result-push";
+      } else {
+        resultIcon = "⏳";
+      }
+
+      const card = document.createElement("div");
+      card.className = "bet-card";
+      card.innerHTML = `
+        <strong>📅 ${first.Timestamp}</strong><br>
+        📆 Week ${first.Week} — <em>${status}</em><br><br>
+        🧾 ${pid} — ${slip.length}-leg Parlay<br>
+        🎯 Selections:<br>${selections}<br><br>
+        💵 Wager: $${wager.toFixed(2)}<br>
+        💰 Payout: $${payout.toFixed(2)}<br>
+        <span class="${resultClass}">${resultIcon} Result: ${result}</span>
+      `;
+
+      container.appendChild(card);
+    });
+  }
+});
