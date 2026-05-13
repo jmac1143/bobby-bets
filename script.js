@@ -31,7 +31,7 @@ const WEEK_GID_MAP = {
 };
 
 const BANKROLL_GID = "399533112";
-
+const SEASON_LONG_GID = "2146009979";
 // Set this to a number like 1, 2, 3, etc. if you ever want to force-test a week.
 // Leave it as null for automatic week selection.
 const DEV_OVERRIDE_WEEK = null;
