@@ -692,3 +692,60 @@ body.bet-page {
     border-radius: 16px 16px 0 0;
   }
 }
+/* === Floating Collapsible Bet Slip === */
+
+.bet-slip-wrapper {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 360px;
+  max-height: 75vh;
+  overflow-y: auto;
+  z-index: 999;
+  border-radius: 16px;
+  padding: 0;
+  border: 1px solid #333;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.65);
+  background: #1c1c1c;
+}
+
+.bet-slip-wrapper.collapsed {
+  width: auto;
+  max-height: none;
+  overflow: hidden;
+}
+
+.bet-slip-wrapper.collapsed .bet-slip,
+.bet-slip-wrapper.collapsed hr,
+.bet-slip-wrapper.collapsed h2,
+.bet-slip-wrapper.collapsed #pending-slips,
+.bet-slip-wrapper.collapsed #bet-history {
+  display: none;
+}
+
+.bet-slip-toggle {
+  width: 100%;
+  padding: 12px 18px;
+  background: #C79A5B;
+  color: #111;
+  border: none;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.bet-slip {
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
+}
+
+@media (max-width: 700px) {
+  .bet-slip-wrapper {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: auto;
+    max-height: 55vh;
+  }
+}
