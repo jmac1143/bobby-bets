@@ -32,12 +32,8 @@ const WEEK_GID_MAP = {
 
 const BANKROLL_GID = "399533112";
 const SEASON_LONG_GID = "2146009979";
-// Set this to a number like 1, 2, 3, etc. if you ever want to force-test a week.
-// Leave it as null for automatic week selection.
-const DEV_OVERRIDE_WEEK = null;
 
-// 2026 Bobby Bets regular season starts Tuesday, September 8, 2026 at noon.
-// Every Tuesday at noon, the app rolls to the next betting week.
+const DEV_OVERRIDE_WEEK = null;
 const SEASON_START_DATE = new Date("2026-09-08T12:00:00");
 const MAX_REGULAR_SEASON_WEEK = 14;
 
@@ -69,10 +65,12 @@ function initBetPage() {
   document.getElementById("user-name").textContent = currentUser;
 
   const weekNum = getCurrentNFLWeek();
+
   const weekLabel = document.getElementById("current-week-label");
-if (weekLabel) {
-  weekLabel.innerHTML = `<strong>Current Betting Week:</strong> Week ${weekNum}`;
-}
+  if (weekLabel) {
+    weekLabel.innerHTML = `<strong>Current Betting Week:</strong> Week ${weekNum}`;
+  }
+
   const MATCHUP_CSV = `${SCRIPT_ENDPOINT}?url=${encodeURIComponent(SHEET_BASE_URL + WEEK_GID_MAP[weekNum] + "&single=true&output=csv")}`;
   const BANKROLL_CSV = `${SCRIPT_ENDPOINT}?url=${encodeURIComponent(SHEET_BASE_URL + BANKROLL_GID + "&single=true&output=csv")}`;
 
@@ -89,7 +87,7 @@ if (weekLabel) {
     }
   });
 
-  // === Load Matchups ===
+  // === Load Weekly Matchups ===
   Papa.parse(MATCHUP_CSV, {
     download: true,
     header: true,
@@ -115,14 +113,16 @@ if (weekLabel) {
         const createButton = (label, odds, type, context = "") => {
           const btn = document.createElement("button");
           btn.className = "bet-btn";
-          btn.textContent = `${label} (${odds > 0 ? "+" + odds : odds})`;
+          btn.textContent = `${label} (${formatOdds(odds)})`;
+
           btn.addEventListener("click", () =>
             addToSlip({
               selection: `${label}${context ? " – " + context : ""}`,
-              odds,
+              odds: Number(odds),
               type
             })
           );
+
           return btn;
         };
 
@@ -215,14 +215,7 @@ if (weekLabel) {
       week
     };
 
-    const decimalOdds = betSlip.reduce((acc, bet) => {
-      const odds = bet.odds;
-      const decimal = odds > 0
-        ? odds / 100 + 1
-        : 100 / Math.abs(odds) + 1;
-
-      return acc * decimal;
-    }, 1);
+    const decimalOdds = calculateDecimalOdds(betSlip);
 
     fetch(SCRIPT_ENDPOINT, {
       method: "POST",
@@ -237,7 +230,7 @@ if (weekLabel) {
 
         if (slip) {
           const selections = betSlip
-            .map(b => `• ${b.selection} (${b.odds > 0 ? "+" : ""}${b.odds})`)
+            .map(b => `• ${b.selection} (${formatOdds(b.odds)})`)
             .join("<br>");
 
           const returnAmount = (wagerAmount * decimalOdds).toFixed(2);
@@ -256,7 +249,7 @@ if (weekLabel) {
             Bettor: currentUser,
             Week: getCurrentNFLWeek(),
             Selections: betSlip
-              .map(b => `${b.selection} (${b.odds > 0 ? "+" : ""}${b.odds})`)
+              .map(b => `${b.selection} (${formatOdds(b.odds)})`)
               .join(", "),
             Wager: `$${wagerAmount.toFixed(2)}`,
             Return: `$${(wagerAmount * decimalOdds).toFixed(2)}`,
@@ -278,10 +271,86 @@ if (weekLabel) {
       });
   });
 
+  loadSeasonLongBets();
   loadPendingSlips();
   loadBetHistory();
 }
 
+// === SEASON LONG BETS ===
+function loadSeasonLongBets() {
+  const container = document.getElementById("season-long-bets");
+  if (!container) return;
+
+  const seasonLongURL = `${SCRIPT_ENDPOINT}?url=${encodeURIComponent(SHEET_BASE_URL + SEASON_LONG_GID + "&single=true&output=csv")}`;
+
+  Papa.parse(seasonLongURL, {
+    download: true,
+    header: true,
+    complete: function (results) {
+      const data = results.data.filter(row =>
+        row["Bet Type"] &&
+        row.Selection &&
+        row.Odds &&
+        (!row.Status || row.Status.trim().toLowerCase() === "open")
+      );
+
+      if (data.length === 0) {
+        container.innerHTML = "<p>No season long bets are currently available.</p>";
+        return;
+      }
+
+      container.innerHTML = "";
+
+      const grouped = {};
+
+      data.forEach(row => {
+        const betType = row["Bet Type"].trim();
+
+        if (!grouped[betType]) {
+          grouped[betType] = [];
+        }
+
+        grouped[betType].push(row);
+      });
+
+      Object.keys(grouped).forEach(betType => {
+        const card = document.createElement("div");
+        card.className = "matchup-card";
+
+        const title = document.createElement("h3");
+        title.textContent = betType;
+
+        const optionsDiv = document.createElement("div");
+        optionsDiv.className = "bet-options";
+
+        grouped[betType].forEach(row => {
+          const selection = row.Selection.trim();
+          const odds = parseAmericanOdds(row.Odds);
+
+          const btn = document.createElement("button");
+          btn.className = "bet-btn";
+          btn.textContent = `${selection} (${formatOdds(odds)})`;
+
+          btn.addEventListener("click", () => {
+            addToSlip({
+              selection: `${betType} – ${selection}`,
+              odds,
+              type: "season-long"
+            });
+          });
+
+          optionsDiv.appendChild(btn);
+        });
+
+        card.appendChild(title);
+        card.appendChild(optionsDiv);
+        container.appendChild(card);
+      });
+    }
+  });
+}
+
+// === BET SLIP ===
 function addToSlip(bet) {
   betSlip.push(bet);
   renderSlip();
@@ -304,7 +373,7 @@ function renderSlip() {
   betSlip.forEach((bet, index) => {
     list.innerHTML += `
       <li>
-        ${bet.selection} @ ${bet.odds > 0 ? "+" + bet.odds : bet.odds}
+        ${bet.selection} @ ${formatOdds(bet.odds)}
         <button onclick="removeFromSlip(${index})">X</button>
       </li>
     `;
@@ -316,14 +385,7 @@ function renderSlip() {
     return;
   }
 
-  const decimalOdds = betSlip.reduce((acc, bet) => {
-    const odds = bet.odds;
-    const decimal = odds > 0
-      ? odds / 100 + 1
-      : 100 / Math.abs(odds) + 1;
-
-    return acc * decimal;
-  }, 1);
+  const decimalOdds = calculateDecimalOdds(betSlip);
 
   const parlayAmerican = decimalOdds >= 2
     ? `+${Math.round((decimalOdds - 1) * 100)}`
@@ -332,7 +394,7 @@ function renderSlip() {
   const payout = wagerAmount * decimalOdds;
 
   parlayLine.innerHTML = betSlip.length === 1
-    ? `<em>Single Bet</em><br>Odds: ${betSlip[0].odds} (${decimalOdds.toFixed(2)})`
+    ? `<em>Single Bet</em><br>Odds: ${formatOdds(betSlip[0].odds)} (${decimalOdds.toFixed(2)})`
     : `<em>${betSlip.length}-Leg Parlay</em><br>Combined Odds: ${parlayAmerican} (${decimalOdds.toFixed(2)})`;
 
   payoutLine.textContent = `Total Wager: $${wagerAmount.toFixed(2)} | Potential Return: $${payout.toFixed(2)}`;
@@ -350,39 +412,7 @@ function adjustWager(delta) {
   renderSlip();
 }
 
-function animateBankrollUpdate(oldValue, newValue) {
-  const display = document.getElementById("bankroll");
-  if (!display) return;
-
-  const isGain = newValue > oldValue;
-  const duration = 1500;
-  const start = performance.now();
-  const difference = newValue - oldValue;
-
-  display.classList.remove("bankroll-gain", "bankroll-loss");
-  display.classList.add(isGain ? "bankroll-gain" : "bankroll-loss");
-
-  function updateFrame(timestamp) {
-    const elapsed = timestamp - start;
-    const progress = Math.min(elapsed / duration, 1);
-    const current = oldValue + difference * progress;
-
-    display.textContent = current.toLocaleString(undefined, {
-      minimumFractionDigits: 2
-    });
-
-    if (progress < 1) {
-      requestAnimationFrame(updateFrame);
-    } else {
-      setTimeout(() => {
-        display.classList.remove("bankroll-gain", "bankroll-loss");
-      }, 500);
-    }
-  }
-
-  requestAnimationFrame(updateFrame);
-}
-
+// === HISTORY / PENDING ===
 function loadPendingSlips() {
   if (!currentUser) return;
 
@@ -523,4 +553,67 @@ function loadBetHistory() {
       });
     }
   });
+}
+
+// === HELPERS ===
+function parseAmericanOdds(value) {
+  if (typeof value === "number") return value;
+
+  const cleaned = value
+    .toString()
+    .trim()
+    .replace("+", "")
+    .replace(",", "");
+
+  return Number(cleaned);
+}
+
+function formatOdds(odds) {
+  const num = Number(odds);
+  if (num > 0) return `+${num}`;
+  return `${num}`;
+}
+
+function calculateDecimalOdds(bets) {
+  return bets.reduce((acc, bet) => {
+    const odds = Number(bet.odds);
+    const decimal = odds > 0
+      ? odds / 100 + 1
+      : 100 / Math.abs(odds) + 1;
+
+    return acc * decimal;
+  }, 1);
+}
+
+function animateBankrollUpdate(oldValue, newValue) {
+  const display = document.getElementById("bankroll");
+  if (!display) return;
+
+  const isGain = newValue > oldValue;
+  const duration = 1500;
+  const start = performance.now();
+  const difference = newValue - oldValue;
+
+  display.classList.remove("bankroll-gain", "bankroll-loss");
+  display.classList.add(isGain ? "bankroll-gain" : "bankroll-loss");
+
+  function updateFrame(timestamp) {
+    const elapsed = timestamp - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const current = oldValue + difference * progress;
+
+    display.textContent = current.toLocaleString(undefined, {
+      minimumFractionDigits: 2
+    });
+
+    if (progress < 1) {
+      requestAnimationFrame(updateFrame);
+    } else {
+      setTimeout(() => {
+        display.classList.remove("bankroll-gain", "bankroll-loss");
+      }, 500);
+    }
+  }
+
+  requestAnimationFrame(updateFrame);
 }
