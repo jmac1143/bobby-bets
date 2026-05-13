@@ -288,6 +288,7 @@ function loadSeasonLongBets() {
     header: true,
     complete: function (results) {
       const data = results.data.filter(row =>
+        row.Category &&
         row["Bet Type"] &&
         row.Selection &&
         row.Odds &&
@@ -301,50 +302,68 @@ function loadSeasonLongBets() {
 
       container.innerHTML = "";
 
-      const grouped = {};
+      const groupedByCategory = {};
 
       data.forEach(row => {
+        const category = row.Category.trim();
         const betType = row["Bet Type"].trim();
 
-        if (!grouped[betType]) {
-          grouped[betType] = [];
+        if (!groupedByCategory[category]) {
+          groupedByCategory[category] = {};
         }
 
-        grouped[betType].push(row);
+        if (!groupedByCategory[category][betType]) {
+          groupedByCategory[category][betType] = [];
+        }
+
+        groupedByCategory[category][betType].push(row);
       });
 
-      Object.keys(grouped).forEach(betType => {
-        const card = document.createElement("div");
-        card.className = "matchup-card";
+      Object.keys(groupedByCategory).forEach(category => {
+        const categorySection = document.createElement("section");
+        categorySection.className = "season-category";
 
-        const title = document.createElement("h3");
-        title.textContent = betType;
+        const categoryTitle = document.createElement("h2");
+        categoryTitle.className = "season-category-title";
+        categoryTitle.textContent = category;
 
-        const optionsDiv = document.createElement("div");
-        optionsDiv.className = "bet-options";
+        categorySection.appendChild(categoryTitle);
 
-        grouped[betType].forEach(row => {
-          const selection = row.Selection.trim();
-          const odds = parseAmericanOdds(row.Odds);
+        Object.keys(groupedByCategory[category]).forEach(betType => {
+          const card = document.createElement("div");
+          card.className = "matchup-card";
 
-          const btn = document.createElement("button");
-          btn.className = "bet-btn";
-          btn.textContent = `${selection} (${formatOdds(odds)})`;
+          const title = document.createElement("h3");
+          title.textContent = betType;
 
-          btn.addEventListener("click", () => {
-            addToSlip({
-              selection: `${betType} – ${selection}`,
-              odds,
-              type: "season-long"
+          const optionsDiv = document.createElement("div");
+          optionsDiv.className = "bet-options";
+
+          groupedByCategory[category][betType].forEach(row => {
+            const selection = row.Selection.trim();
+            const odds = parseAmericanOdds(row.Odds);
+
+            const btn = document.createElement("button");
+            btn.className = "bet-btn";
+            btn.textContent = `${selection} (${formatOdds(odds)})`;
+
+            btn.addEventListener("click", () => {
+              addToSlip({
+                selection: `${category} – ${betType} – ${selection}`,
+                odds,
+                type: "season-long"
+              });
             });
+
+            optionsDiv.appendChild(btn);
           });
 
-          optionsDiv.appendChild(btn);
+          card.appendChild(title);
+          card.appendChild(optionsDiv);
+          categorySection.appendChild(card);
         });
 
-        card.appendChild(title);
-        card.appendChild(optionsDiv);
-        container.appendChild(card);
+        container.appendChild(categorySection);
       });
     }
   });
