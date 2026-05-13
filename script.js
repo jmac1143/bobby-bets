@@ -69,6 +69,10 @@ function initBetPage() {
   document.getElementById("user-name").textContent = currentUser;
 
   const weekNum = getCurrentNFLWeek();
+  const weekLabel = document.getElementById("current-week-label");
+if (weekLabel) {
+  weekLabel.innerHTML = `<strong>Current Betting Week:</strong> Week ${weekNum}`;
+}
   const MATCHUP_CSV = `${SCRIPT_ENDPOINT}?url=${encodeURIComponent(SHEET_BASE_URL + WEEK_GID_MAP[weekNum] + "&single=true&output=csv")}`;
   const BANKROLL_CSV = `${SCRIPT_ENDPOINT}?url=${encodeURIComponent(SHEET_BASE_URL + BANKROLL_GID + "&single=true&output=csv")}`;
 
