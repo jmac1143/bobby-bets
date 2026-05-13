@@ -402,6 +402,11 @@ function renderSlip() {
   const payoutLine = document.getElementById("payout-line");
 
   if (!list || !parlayLine || !payoutLine) return;
+  const toggle = document.getElementById("bet-slip-toggle");
+
+if (toggle) {
+  toggle.textContent = `🧾 Bet Slip (${betSlip.length})`;
+}
 
   list.innerHTML = "";
 
