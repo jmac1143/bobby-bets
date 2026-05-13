@@ -308,26 +308,32 @@ function loadSeasonLongBets() {
         const category = row.Category.trim();
         const betType = row["Bet Type"].trim();
 
-        if (!groupedByCategory[category]) {
-          groupedByCategory[category] = {};
-        }
-
-        if (!groupedByCategory[category][betType]) {
-          groupedByCategory[category][betType] = [];
-        }
+        if (!groupedByCategory[category]) groupedByCategory[category] = {};
+        if (!groupedByCategory[category][betType]) groupedByCategory[category][betType] = [];
 
         groupedByCategory[category][betType].push(row);
       });
 
       Object.keys(groupedByCategory).forEach(category => {
         const categorySection = document.createElement("section");
-        categorySection.className = "season-category";
+        categorySection.className = "season-category collapsed";
 
-        const categoryTitle = document.createElement("h2");
-        categoryTitle.className = "season-category-title";
-        categoryTitle.textContent = category;
+        const categoryHeader = document.createElement("button");
+        categoryHeader.className = "season-category-header";
+        categoryHeader.innerHTML = `
+          <span class="category-arrow">▶</span>
+          <span>${category}</span>
+        `;
 
-        categorySection.appendChild(categoryTitle);
+        const categoryContent = document.createElement("div");
+        categoryContent.className = "season-category-content";
+
+        categoryHeader.addEventListener("click", () => {
+          categorySection.classList.toggle("collapsed");
+
+          const arrow = categoryHeader.querySelector(".category-arrow");
+          arrow.textContent = categorySection.classList.contains("collapsed") ? "▶" : "▼";
+        });
 
         Object.keys(groupedByCategory[category]).forEach(betType => {
           const card = document.createElement("div");
@@ -360,9 +366,11 @@ function loadSeasonLongBets() {
 
           card.appendChild(title);
           card.appendChild(optionsDiv);
-          categorySection.appendChild(card);
+          categoryContent.appendChild(card);
         });
 
+        categorySection.appendChild(categoryHeader);
+        categorySection.appendChild(categoryContent);
         container.appendChild(categorySection);
       });
     }
