@@ -654,3 +654,41 @@ body.bet-page {
 .season-category.collapsed .season-category-content {
   display: none;
 }
+/* === Sticky Bet Slip === */
+
+.bet-slip-wrapper {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 360px;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 999;
+  border-radius: 16px;
+  padding: 1rem;
+  border: 1px solid #333;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.65);
+}
+
+.bet-slip {
+  max-width: none;
+  margin: 0;
+}
+
+#pending-slips,
+#bet-history {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Mobile: make slip full-width at bottom */
+@media (max-width: 700px) {
+  .bet-slip-wrapper {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-height: 55vh;
+    border-radius: 16px 16px 0 0;
+  }
+}
