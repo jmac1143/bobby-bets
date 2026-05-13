@@ -84,6 +84,14 @@ function initBetPage() {
       const bankroll = userRow ? parseFloat(userRow.Bankroll.replace(/[$,]/g, "")) || 0 : 0;
       const currentDisplay = parseFloat(document.getElementById("bankroll").textContent.replace(/[$,]/g, "")) || 0;
       animateBankrollUpdate(currentDisplay, bankroll);
+      const betSlipWrapper = document.querySelector(".bet-slip-wrapper");
+const betSlipToggle = document.getElementById("bet-slip-toggle");
+
+if (betSlipWrapper && betSlipToggle) {
+  betSlipToggle.addEventListener("click", () => {
+    betSlipWrapper.classList.toggle("collapsed");
+  });
+}
     }
   });
 
